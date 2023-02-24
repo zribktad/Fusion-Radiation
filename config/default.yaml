@@ -1,0 +1,18 @@
+filter:
+  test:  "Ahoj"
+
+
+generator:
+  start_capacity: 150
+  start_lenght: 3.0
+  end_lenght: 15.0
+
+  uniform:
+    range: 1.0    
+  lines:
+    number_lines: 200
+  random:
+    capacity_lines: 200
+    number_iterations: 3000
+    start_dist_weight: 0.2
+    end_dist_weight:  1.0

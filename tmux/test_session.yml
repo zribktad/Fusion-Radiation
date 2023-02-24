@@ -1,0 +1,20 @@
+name: simulation
+root: ./
+pre_window:  export UAV_NAME="uav15"; export RUN_TYPE=simulation; export UAV_TYPE=t650; export WORLD_NAME=simulation; export WORLD_FILE=./custom_configs/world.yaml; export SENSORS="garmin_down"; export ODOMETRY_TYPE="gps"; export PX4_SIM_SPEED_FACTOR=1
+startup_window: fusion
+windows:
+  - roscore:
+      layout: tiled
+      panes:
+        - roscore
+
+  - test:
+      layout: tiled
+      panes: 
+        -
+  - fusion:
+      layout: tiled
+      panes: 
+        - cd ~/user_ros_workspace/src/fusion_radiation/tmux; catkin bt && waitForRos && roslaunch fusion_radiation fusion_radiation.launch custom_config:=./custom_configs/fusion.yaml 
+
+

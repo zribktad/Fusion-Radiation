@@ -1,0 +1,5 @@
+<library path="lib/libFusionRadiation">
+  <class name="fusion_radiation/FusionRadiation" type="fusion_radiation::FusionRadiation" base_class_type="nodelet::Nodelet">
+    <description>ComptonLocalozation nodelet</description>
+  </class>
+</library>

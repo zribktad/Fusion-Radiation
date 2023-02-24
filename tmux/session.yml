@@ -1,0 +1,84 @@
+name: simulation
+root: ./
+pre_window:  export UAV_NAME="uav15"; export RUN_TYPE=simulation; export UAV_TYPE=t650; export WORLD_NAME=simulation; export WORLD_FILE=./custom_configs/world.yaml; export SENSORS="garmin_down"; export ODOMETRY_TYPE="gps"; export PX4_SIM_SPEED_FACTOR=1
+startup_window: fusion
+windows:
+  - roscore:
+      layout: tiled
+      panes:
+        - roscore
+  - gazebo:
+      layout: tiled
+      panes:
+        - waitForRos; roslaunch mrs_simulation simulation.launch world_name:=grass_plane gui:=true
+        - waitForOdometry; gz camera -c gzclient_camera -f ${UAV_NAME}; history -s gz camera -c gzclient_camera -f ${UAV_NAME}
+  - status:
+      layout: tiled
+      panes:
+        - waitForSimulation; roslaunch mrs_uav_status status.launch
+  - spawn:
+      layout: tiled
+      panes:
+        - waitForSimulation; rosservice call /mrs_drone_spawner/spawn "15 $UAV_TYPE --enable-rangefinder --enable-timepix3 --enable-ground-truth --enable-ouster --ouster-model OS0-128 --use-gpu-ray --pos 0 0 1.0 0 --enable-mobius-camera-front"
+  - control:
+      layout: tiled
+      panes:
+        - waitForOdometry; roslaunch mrs_uav_general core.launch
+  - takeoff:
+      layout: tiled
+      panes:
+        - waitForSimulation; roslaunch mrs_uav_general automatic_start.launch
+        - 'waitForControl;
+          rosservice call /$UAV_NAME/mavros/cmd/arming 1;
+          sleep 2;
+          rosservice call /$UAV_NAME/mavros/set_mode 0 offboard'
+  - goto:
+      layout: tiled
+      panes:
+        - 'history -s rosservice call /$UAV_NAME/control_manager/goto \"goal: \[0.0, 10.0, 1.5, 0.0\]\"'
+  - tracking:
+      layout: tiled
+      panes:
+        - waitForControl;roslaunch trajectory_loader single_uav.launch path:=sample_trajectores file:=cicle_10_5.txt;  roslaunch trajectory_loader single_uav.launch mode:=track 
+  - rviz:
+      layout: tiled
+      panes:
+        - waitForControl; roslaunch mrs_uav_testing rviz_random_simulation.launch
+        - waitForControl; roslaunch mrs_rviz_plugins load_robot.launch
+  - mapplan:
+      layout: tiled
+      panes:
+        - waitForOdometry; roslaunch octomap_mapping_planning mapplan.launch config_octomap:=./custom_configs/octomap.yaml config_pcl_filter_ouster:=./custom_configs/ouster_filter_mapping.yaml config_pathfinder:=./custom_configs/pathfinder.yaml config_trajectory_generation:=./custom_configs/trajectory_generation.yaml config_pcl_filter_rs_front:=./custom_configs/rs_front_filter.yaml config_pcl_filter_rs_down:=./custom_configs/rs_down_filter.yaml      
+  - easy_control:
+      layout: tiled
+      panes:
+        - waitForControl; waitForControl; roslaunch mrs_uav_general logitech_joystick.launch
+        - waitForControl; waitForControl; roslaunch mrs_rviz_plugins rviz_interface.launch
+  - cone_generator:
+      layout: tiled
+      panes:
+       - waitForControl;  roslaunch gazebo_compton_camera_python compton_camera_front.launch
+       - waitForControl;  roslaunch compton_cone_generator compton_cone_generator.launch
+  - rqt:
+      layout: tiled
+      panes:
+        -  rosrun rqt_reconfigure rqt_reconfigure  
+        #- rqt_image_vie;
+  - cicle_flier:
+      layout: tiled
+      panes: 
+       - waitForControl; roslaunch mrs_uav_testing circle_flier.launch UAV_NAME:=${UAV_NAME}
+  - rqt_image:
+      layout: tiled
+      panes: 
+        - rqt_image_view /my_image_out
+  - test:
+      layout: tiled
+      panes: 
+        -
+  - fusion:
+      layout: tiled
+      panes: 
+        - cd ~/user_ros_workspace/src/fusion_radiation/tmux; catkin bt && waitForRos && roslaunch fusion_radiation fusion_radiation.launch custom_config:=./custom_configs/fusion.yaml 
+
+

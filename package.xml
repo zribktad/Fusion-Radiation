@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>fusion_radiation</name>
+  <version>0.0.0</version>
+  <description>Cone filter package</description>
+
+  <maintainer email="zribktad@fel.cvut.cz">Tadeáš Zribko</maintainer>
+
+  <license>TODO</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <depend>message_generation</depend>
+  <depend>rospy</depend>
+  <depend>std_msgs</depend>
+  <depend>nodelet</depend>
+  <depend>roscpp</depend>
+  <depend>message_runtime</depend>
+  <depend>rad_msgs</depend>
+  <depend>sensor_msgs</depend>
+  <depend>mrs_msgs</depend>
+  <depend>rad_utils</depend>
+  <depend>mrs_lib</depend>
+  <depend>dynamic_reconfigure</depend>
+
+
+  
+
+</package>
