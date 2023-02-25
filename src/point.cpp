@@ -1,18 +1,19 @@
 #include <point.hpp>
 #include <string>
 
+
 namespace fusion_radiation {
 
-Point::Point() : coord({0, 0, 0}), weight(INFINITY), cone_id(-1) {
+Point::Point() : coord({0, 0, 0}), weight(INFINITY), coeff(0),cone_id(-1) {
 }
 
-Point::Point(Vector3d coord) : coord(coord), weight(INFINITY), cone_id(-1) {
+Point::Point(Vector3d coord) : coord(coord), weight(INFINITY),coeff(0), cone_id(-1) {
 }
 
-Point::Point(Vector3d coord, long cone_id) : coord(coord), weight(INFINITY), cone_id(cone_id) {
+Point::Point(Vector3d coord, long cone_id) : coord(coord), weight(INFINITY), coeff(0),cone_id(cone_id) {
 }
 
-Point::Point(Vector3d coord, double weight, long cone_id) : coord(coord), weight(weight), cone_id(cone_id) {
+Point::Point(Vector3d coord, double weight, long cone_id) : coord(coord), weight(weight),coeff(0), cone_id(cone_id) {
 }
 
 bool Point::operator<(const Point &rhs) const {
@@ -49,9 +50,22 @@ double Point::distanceSquared(const Point &rhs) const {
 
 const std::string Point::toString() const {
     std::ostringstream ss;
-    ss << "Point coord: (" << coord.x() << ", " << coord.y() << ", " << coord.z() << ") , weight: " << weight << " , cone id: " << cone_id;
+    ss << "Point coord: (" << coord.x() << ", " << coord.y() << ", " << coord.z() 
+    << ") , weight: " << weight 
+    << " , code coeff: " << coeff
+    << " , cone id: " << cone_id;
     std::string s =ss.str();
     return s;
+}
+
+void Point::writePoints(const std::vector<Point> &points){
+
+        for (size_t i = 0; i < points.size(); i++)
+        {
+           const auto & p = points[i];
+           std::cout <<  "Index: "<< i <<" " <<   p.toString() << std::endl;
+        }
+        
 }
 
 }  // namespace fusion_radiation

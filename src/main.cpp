@@ -14,9 +14,9 @@ Points generator(const uint size) {
     Points r;
     r.reserve(size);
     for (size_t i = 0; i < size / 3; i++) {
-        r.push_back({{rand() % 100, rand() % 10, 0}});
-        r.push_back({{rand() % 10 + 1000, rand() % 100 + 100, 0}});
-        r.push_back({{rand() % 10 - 1000, rand() % 100 + 100, 0}});
+        r.push_back({{(double)(rand() % 100), (double)(rand() % 10), 0}});
+        r.push_back({{(double)(rand() % 10 + 1000), (double)(rand() % 100 + 100), 0}});
+        r.push_back({{(double)(rand() % 10 - 1000), (double)(rand() % 100 + 100), 0}});
     }
 
     return r;

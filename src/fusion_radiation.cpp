@@ -11,7 +11,7 @@ void FusionRadiation::onInit() {
     initOctomapCallBack();
     initCameraCallBacks();
 
-    // transformaer
+    // transformer
     image_transport::ImageTransport it(n);
     transformer_ = std::make_unique<mrs_lib::Transformer>("fusion_radiation");
     transformer_->setDefaultPrefix(_uav_name_);
@@ -20,7 +20,6 @@ void FusionRadiation::onInit() {
     bv = mrs_lib::BatchVisualizer(n, "markers_visualizer", _uav_name_ + string("/gps_origin"));
 
     PointVisualzer::init(bv);
-    FusionRun::initTesting(200, 200);
 }
 inline void FusionRadiation::loadParameters() {
     ROS_INFO("[FusionRadiation]: initializing");
@@ -31,7 +30,7 @@ inline void FusionRadiation::loadParameters() {
 
     param_loader.loadParam("uav_name", _uav_name_);
 
-    SampleGenerator::loadParameters(param_loader);
+    FusionRun::loadTesting(param_loader);
 
     if (!param_loader.loadedSuccessfully()) {
         ROS_ERROR("[FusionRadiation]: Could not load all parameters!");
@@ -44,7 +43,6 @@ inline void FusionRadiation::loadParameters() {
 
 void FusionRadiation::comptonConeCallBack(const rad_msgs::Cone::ConstPtr& msg) {
     const Cone cone(msg);
-
 
     PointVisualzer::clearVisual();
     PointVisualzer::setSourceLocation(radiation_locations);
@@ -66,7 +64,6 @@ void FusionRadiation::octomapCallBack(const octomap_msgs::OctomapConstPtr& msg) 
         return;
     } else {
         octree_out = OcTreePtr_t(dynamic_cast<octomap::OcTree*>(tree_ptr));
-        ROS_INFO("Received new octomap cone");
     }
 }
 
@@ -87,22 +84,35 @@ void FusionRadiation::imageCallback(const sensor_msgs::ImageConstPtr& msg) {
 void FusionRadiation::setSourceRadiaitonPositionCallBack0(const geometry_msgs::PoseStampedConstPtr& msg) {
     const int index = 0;
     Vector3d pose;
+    
     pose.x() = msg->pose.position.x;
     pose.y() = msg->pose.position.y;
     pose.z() = msg->pose.position.z;
+
+    if(radiation_locations.size()<1){
+       radiation_locations.resize(1);
+    }
     radiation_locations[index] = pose;
 
     // cout << "Source position num " << index << " : " << radiation_locations[index].transpose() << endl;
 }
 void FusionRadiation::setSourceRadiaitonPositionCallBack1(const geometry_msgs::PoseStampedConstPtr& msg) {
     const int index = 1;
+
+     if(radiation_locations.size()<2){
+       radiation_locations.resize(2);
+    }
     radiation_locations[index].x() = msg->pose.position.x;
     radiation_locations[index].y() = msg->pose.position.y;
     radiation_locations[index].z() = msg->pose.position.z;
+   
     //  cout << "Source position num " << index << " : " << radiation_locations[index].transpose() << endl;
 }
 void FusionRadiation::setSourceRadiaitonPositionCallBack2(const geometry_msgs::PoseStampedConstPtr& msg) {
     const int index = 2;
+     if(radiation_locations.size()<3){
+       radiation_locations.resize(3);
+    }
     radiation_locations[index].x() = msg->pose.position.x;
     radiation_locations[index].y() = msg->pose.position.y;
     radiation_locations[index].z() = msg->pose.position.z;

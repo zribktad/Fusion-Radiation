@@ -7,7 +7,7 @@ Cone::Cone(Vector3d o, Vector3d d, double a) : origin(o), direction(d), angle(a)
 }
 
 Cone::Cone(const rad_msgs::Cone::ConstPtr& msg) {
-    origin = {msg->pose.position.x, msg->pose.position.x, msg->pose.position.x};
+    origin = {msg->pose.position.x, msg->pose.position.y, msg->pose.position.z};
     direction = {msg->direction.x, msg->direction.y, msg->direction.z};
     angle = msg->angle;
 

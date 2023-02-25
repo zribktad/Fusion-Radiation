@@ -1,11 +1,8 @@
-filter:
-  test:  "Ahoj"
-
 
 generator:
   start_capacity: 150
   start_lenght: 3.0
-  end_lenght: 15.0
+  end_lenght: 25.0
 
   uniform:
     range: 1.0    
@@ -16,3 +13,24 @@ generator:
     number_iterations: 3000
     start_dist_weight: 0.2
     end_dist_weight:  1.0
+
+sample_filter:
+  dataset_limit : 500
+  # /* source Estimations*/
+  estimation_limit: 200
+  estimation_dist: 3.0
+  estimation_min_group_size: 5
+  # /* Filters  */
+   # /*cicleFilter*/
+  treshold : 0.5
+  # /*SumNumFilter*/
+  nearest_sum_n : 2
+  queue_sum_n : 3
+  #/*BestOfNumFilter*/
+  input_coef_avg_best : 0.4 
+  output_size_avg_best : 1    
+   # /*RandomFilter*/
+  random_sample_coef : 0.33 
+    #/*WorstOfNumFilter*/
+  input_size_avg_worst : 10     
+  output_coef_avg_worst : 0.4  
