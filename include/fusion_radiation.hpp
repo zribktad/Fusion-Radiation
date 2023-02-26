@@ -33,6 +33,8 @@
 #include <cone.hpp>
 #include "point_visualizer.hpp"
 #include "fusion_run.hpp"
+#include "image_filter.hpp"
+
 
 
 
@@ -51,7 +53,6 @@ class FusionRadiation {
    private:
     ros::Subscriber source_sub;
     ros::NodeHandle n;
-    std::unique_ptr<mrs_lib::Transformer> transformer_;
     inline static mrs_lib::BatchVisualizer bv = {};
 
     /******** parameters *****************/

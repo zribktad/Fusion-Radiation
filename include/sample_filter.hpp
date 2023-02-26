@@ -16,7 +16,8 @@ namespace fusion_radiation {
 class SampleFilter {
    public:
     void loadParameters(mrs_lib::ParamLoader &param_loader);
-    void cicleFilter(Points &samples);
+    void CicleFilter(Points &samples);
+    void CicleFilter2(Points &samples);
     void BestOfNumFilter(Points &samples);
     void SumNumFilter(Points &samples);
     void SumOneFilter(Points &samples);
@@ -26,14 +27,16 @@ class SampleFilter {
     void estimateManySources(vector<Vector3d> &estimation);
     void setDataset(Points &dataset);
     Points getDataset();
+    vector<Vector3d> getEstimation();
 
    private:
     Points dataset;
+    vector<Eigen::Vector3d> estimation;
     struct Estimate_sum_t;
 
     inline void queueToDataset(priority_queue<Point> &queue);
 
-    int dataset_limit = 200;
+    int dataset_limit = 2000;  // buffer size
     /*Estimations*/
     int estimation_limit = 200;
     double estimation_dist = 3.0;

@@ -63,6 +63,7 @@ include_directories(
   src/sample_generator.cpp
   src/sample_filter.cpp
   src/KDTree.cpp
+  src/image_filter.cpp
 )
 
 

@@ -34,3 +34,12 @@ sample_filter:
     #/*WorstOfNumFilter*/
   input_size_avg_worst : 10     
   output_coef_avg_worst : 0.4  
+
+image_filter:
+  threshold_shift: 135
+  size_threshold: 360
+  dilation: 0
+  dilation_size: 1
+  delta_distance: 25
+  resize_image: 50
+  show_edges: 0

@@ -46,12 +46,10 @@ void SampleFilter::estimateManySources(vector<Vector3d> &estimation) {
             while (!q.empty()) {
                 const Vector3d &ref_point = q.front();
                 q.pop();
-                // cout << "    QuE pos: "<<group  << " coord: " << ref_point.transpose() << " \tgroup: "<< group_index<< endl;
                 for (ulong j = i + 1; j < limit; j++) {
                     Vector3d &p = dataset[j].coord;
                     if (group[j] == -1) {
                         const double distance = (ref_point - p).squaredNorm();
-                        //     cout << "       tmp pos: "<<group  << " coord: " << p.transpose() << " \tgroup: "<< p.group<<"\tdistance: " << distance <<endl;
                         if (distance <= ref_distance) {
                             group[j] = group_index;
                             estimate_sum.sum += p;
@@ -72,6 +70,7 @@ void SampleFilter::estimateManySources(vector<Vector3d> &estimation) {
             estimation.emplace_back(itr.sum / itr.coeff);
         }
     }
+    this->estimation = estimation;
 }
 
 void SampleFilter::SumNumFilter(Points &samples) {
@@ -251,7 +250,6 @@ void SampleFilter::RandomFilter(Points &samples) {
 
     srand(time(0));
     ulong limit_in = (ulong)dataset.size() * random_sample_coef;
-    cout << limit_in << endl;
     for (Point &point : samples) {
         for (ulong i = 0; i < limit_in; ++i) {
             ulong index = rand() % dataset.size();
@@ -338,16 +336,13 @@ void SampleFilter::WorstOfNumFilter(Points &samples) {
     queueToDataset(data_priority_queue);
 }
 
-void SampleFilter::cicleFilter(Points &samples) {
+void SampleFilter::CicleFilter(Points &samples) {
     // Initialize priority queue and score vectors
     priority_queue<Point> dataset_q;
     vector<double> score_dataset(dataset.size());
     vector<double> score_samples(samples.size());
-
     KDTree tree(samples);  // Build KD-Tree for efficient nearest-neighbor search
-
     const ulong dataset_size = dataset.size();
-
     for (ulong i = 0; i < dataset_size; ++i) {  // Calculate score for each point in the dataset
 
         vector<ulong> result;
@@ -359,9 +354,7 @@ void SampleFilter::cicleFilter(Points &samples) {
             ++score_samples[index];  // Increase the score of each nearby sample point by 1 / can be changed
         }
     }
-
     const ulong samples_size = samples.size();
-
     if (dataset_size) {
         // Calculate indices for the "better" and "worst" points in the dataset based on hit_position and miss_position
         const ulong better_index = dataset_size * hit_position - 1;
@@ -378,7 +371,6 @@ void SampleFilter::cicleFilter(Points &samples) {
             dataset_q.emplace(point);  // Add the sample point to the priority queue
         }
     }
-
     for (ulong i = 0; i < dataset_size; ++i) {  // Adjust weights of dataset points based on their scores
         Point &point = dataset[i];
         point.weight -= score_dataset[i] > 0 ? hit_score : miss_score;
@@ -386,6 +378,44 @@ void SampleFilter::cicleFilter(Points &samples) {
     }
     // Convert the priority queue to a vector and store it as the new dataset
     queueToDataset(dataset_q);
+}
+
+void SampleFilter::CicleFilter2(Points &samples) {
+    priority_queue<Point> data_priority_queue;
+    vector<double> score_dataset(dataset.size(), 0);
+
+    for (Point &point : samples) {
+        double score_for_point = 0;
+        for (ulong i = 0; i < dataset.size(); ++i) {
+            Point &ref_point = dataset[i];
+            double distance = point.distanceSquared(ref_point);
+            if (distance < 0.5) {
+                score_for_point++;
+                // if(!score_dataset[i])
+                score_dataset[i]++;
+            } else {
+                //   score_for_point--;
+                // score_dataset[i]--;
+            }
+        }
+        if (dataset.size()) {
+            point.weight = score_for_point > 0 ? dataset[dataset.size() * 0.7 - 1].weight : dataset[dataset.size() * 0.95 - 1].weight;
+        }
+        data_priority_queue.push(point);
+    }
+
+    for (ulong i = 0; i < dataset.size(); ++i) {
+        Point &point = dataset[i];
+        if (point.weight == INFINITY) {
+            point.weight = 0;
+        }
+
+        point.weight += score_dataset[i] > 0 ? -5 : 1;
+
+        data_priority_queue.push(point);
+    }
+
+    queueToDataset(data_priority_queue);
 }
 
 void SampleFilter::setDataset(Points &dataset) {
@@ -407,4 +437,9 @@ inline void SampleFilter::queueToDataset(priority_queue<Point> &queue) {
 
     dataset = std::move(new_dataset);
 }
+
+ vector<Vector3d>  SampleFilter::getEstimation()  {
+    return estimation;
+}
+
 }  // namespace fusion_radiation

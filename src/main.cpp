@@ -24,8 +24,8 @@ Points generator(const uint size) {
 
 int main(int argc, char* argv[]) {
     ros::init(argc, argv, "fusion_radiation");
-    fusion_radiation::FusionRadiation fr;
-    SampleFilter sf;
+     fusion_radiation::FusionRadiation fr;
+    // SampleFilter sf, sf2;
 
     // std::vector<fusion_radiation::Point> points = {{{1, 0, 0}},
     //                                                {{2, 0, 0}},
@@ -35,33 +35,44 @@ int main(int argc, char* argv[]) {
     //                                                {{4, 0, 0}},
     //                                                {{5, 0, 0}},
     //                                                {{10, 0, 0}}};
+    // std::vector<fusion_radiation::Point> points2;
 
-    // points = generator(1000000);
+    // points2 = generator(100);
     // sf.setDataset(points);
+    // sf2.setDataset(points);
 
-    // std::vector<Eigen::Vector3d> r1, r2;
+    // double c1 = 0, c2 = 0;
 
-    // auto start = std::chrono::high_resolution_clock::now();  // Get the current time
-    // sf.estimateManySources(r1);
-    // auto end = std::chrono::high_resolution_clock::now();                                // Get the current time
-    // auto duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start);  // Calculate the duration in microseconds
+    // for (size_t i = 0; i < 150; i++) {
+    //     points = generator(50);
+    //     std::vector<Eigen::Vector3d> r1, r2;
+    //     std::vector<fusion_radiation::Point> d1(points);
+    //     std::vector<fusion_radiation::Point> d2(points);
+    //     if (i % 2) {
+    //         auto start = std::chrono::high_resolution_clock::now();  // Get the current time
+    //         sf.CicleFilter(d1);
+    //         auto end = std::chrono::high_resolution_clock::now();                              // Get the current time
+    //         c1 += std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();  // Calculate the duration in microseconds
 
-    // auto start2 = std::chrono::high_resolution_clock::now();  // Get the current time
-    // sf.estimateManySourcesTree(r2);
-    // auto end2 = std::chrono::high_resolution_clock::now();                                  // Get the current time
-    // auto duration2 = std::chrono::duration_cast<std::chrono::microseconds>(end2 - start2);  // Calculate the duration in microseconds
+    //         auto start2 = std::chrono::high_resolution_clock::now();  // Get the current time
+    //         sf2.CicleFilter2(d2);
+    //         auto end2 = std::chrono::high_resolution_clock::now();                               // Get the current time
+    //         c2 += std::chrono::duration_cast<std::chrono::microseconds>(end2 - start2).count();  // Calculate the duration in microseconds
+    //     } else {
+    //         auto start2 = std::chrono::high_resolution_clock::now();  // Get the current time
+    //         sf.CicleFilter(d2);
+    //         auto end2 = std::chrono::high_resolution_clock::now();                               // Get the current time
+    //         c1 += std::chrono::duration_cast<std::chrono::microseconds>(end2 - start2).count();  // Calculate the duration in microseconds
+    //         auto start = std::chrono::high_resolution_clock::now();                              // Get the current time
 
-    // std::cout << " first size: " << r1.size() << std::endl;
-    // for (const auto& p : r1) {
-    //     cout << p.transpose() << endl;
+    //         sf2.CicleFilter2(d1);
+    //         auto end = std::chrono::high_resolution_clock::now();                              // Get the current time
+    //         c2 += std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();  // Calculate the duration in microseconds
+    //     }
     // }
-    // std::cout << " second size: " << r2.size() << std::endl;
-    // for (const auto& p : r2) {
-    //     cout << p.transpose() << endl;
-    // }
 
-    // std::cout << "Execution1 time: " << duration.count() << " microseconds" << std::endl;
-    // std::cout << "Execution2 time: " << duration2.count() << " microseconds" << std::endl;
+    // std::cout << "Execution1 time: " << c1 << " microseconds" << std::endl;
+    // std::cout << "Execution2 time: " << c2 << " microseconds" << std::endl;
     // // fusion_radiation::KDTree tree(points);
 
     // fusion_radiation::Point center({0, 0, 0});

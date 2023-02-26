@@ -23,6 +23,7 @@ class FusionRun {
    public:
     static void loadTesting(mrs_lib::ParamLoader& param_loader);
     static void generateSample(const Cone& cone, OcTreePtr_t collisions);
+    inline static vector<Vector3d> estimation = {};
 };
 
 }  // namespace fusion_radiation

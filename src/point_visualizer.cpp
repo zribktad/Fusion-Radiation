@@ -8,7 +8,6 @@ void PointVisualzer::init(mrs_lib::BatchVisualizer &bv) {
 
 void PointVisualzer::setSourceLocation(vector<Vector3d> &locations) {
     PointVisualzer::radiation_locations = locations;
-    cout << "set soruces" << endl;
 }
 
 void PointVisualzer::clearVisual() {
@@ -48,9 +47,6 @@ void PointVisualzer::drawPoints(const Points &points, const Vector4f &color, con
 
 void PointVisualzer::drawSources(const double scale) {
     drawPoints(radiation_locations, {1, 0, 0, 1});
-    for (auto a : radiation_locations) {
-        cout << a.transpose() << endl;
-    }
 }
 
 }  // namespace fusion_radiation
