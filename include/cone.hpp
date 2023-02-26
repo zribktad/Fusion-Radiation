@@ -22,8 +22,8 @@ struct Cone {
     Vector3d direction_norm_side;
     Vector3d u_side;
     Vector3d v_side;
-
     Cone();
+    Cone(const double range);
     Cone(Vector3d o, Vector3d d, double a);
     Cone(const rad_msgs::Cone::ConstPtr& msg);
     void calculate_cone();

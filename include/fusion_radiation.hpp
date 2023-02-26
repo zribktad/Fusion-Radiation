@@ -62,30 +62,31 @@ class FusionRadiation {
     inline void loadParameters();
 
     /********* Sources  position  **************/
-    vector<ros::Subscriber> source_subcribers;
+    vector<ros::Subscriber> source_subscribers;
     vector<Vector3d> radiation_locations;
-    void setSourceRadiaitonPositionCallBack0(const geometry_msgs::PoseStampedConstPtr& msg);
-    void setSourceRadiaitonPositionCallBack1(const geometry_msgs::PoseStampedConstPtr& msg);
-    void setSourceRadiaitonPositionCallBack2(const geometry_msgs::PoseStampedConstPtr& msg);
-    inline void initSourcesCallbacks();
+    void setSourceRadiationPositionCallback0(const geometry_msgs::PoseStampedConstPtr& msg);
+    void setSourceRadiationPositionCallback1(const geometry_msgs::PoseStampedConstPtr& msg);
+    void setSourceRadiationPositionCallback2(const geometry_msgs::PoseStampedConstPtr& msg);
+    void setSourceRadiationPositionCallback4(const geometry_msgs::PoseStampedConstPtr& msg, const int index);
+    void initSourcesCallbacks();
 
     /************ Compton cone  ************/
     ros::Subscriber cone_subscriber;
     void comptonConeCallBack(const rad_msgs::Cone::ConstPtr& msg);
-    inline void initComptonConeCallBack();
+    void initComptonConeCallBack();
     
 
     /************ Octomap  ************/
     OcTreePtr_t octree_out;
     ros::Subscriber octomap_subscriber;
     void octomapCallBack(const octomap_msgs::OctomapConstPtr& msg);
-    inline void initOctomapCallBack();
+    void initOctomapCallBack();
 
     /******** Camera Image and Info **********/
     image_geometry::PinholeCameraModel camera_model_;
     std_msgs::Header image_header;
     ros::Subscriber camera_info_sub, camera_image_sub;
-    inline void initCameraCallBacks();
+    void initCameraCallBacks();
     void cameraInfoCallback(const sensor_msgs::CameraInfoConstPtr& msg);
     void imageCallback(const sensor_msgs::ImageConstPtr& msg);
 

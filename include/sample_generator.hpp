@@ -36,12 +36,12 @@ class SampleGenerator {
     inline static double start_lenght = 5;
     inline static double end_lenght = 15;
     /*Uniform variables*/
-    inline static double range = 1;
+    inline static double range = 0.8;
     /*Lines variables*/
-    inline static int number_lines = 200;
+    inline static int number_lines = 100;
     /*Random variables*/
-    inline static int capacity_lines = 200;
-    inline static int number_iterations = 3000;
+    inline static int capacity_lines = 100;
+    inline static int number_iterations = 400;
     inline static double start_dist_weight = 0.2;
     inline static double end_dist_weight = 1;
 

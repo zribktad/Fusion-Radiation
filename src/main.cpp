@@ -6,25 +6,19 @@
 
 #include "KDTree.hpp"
 #include "fusion_radiation.hpp"
+#include "fusion_test.hpp"
 #include "point.hpp"
 
 using namespace fusion_radiation;
 
-Points generator(const uint size) {
-    Points r;
-    r.reserve(size);
-    for (size_t i = 0; i < size / 3; i++) {
-        r.push_back({{(double)(rand() % 100), (double)(rand() % 10), 0}});
-        r.push_back({{(double)(rand() % 10 + 1000), (double)(rand() % 100 + 100), 0}});
-        r.push_back({{(double)(rand() % 10 - 1000), (double)(rand() % 100 + 100), 0}});
-    }
 
-    return r;
-}
 
 int main(int argc, char* argv[]) {
     ros::init(argc, argv, "fusion_radiation");
-     fusion_radiation::FusionRadiation fr;
+     //fusion_radiation::FusionRadiation fr;
+
+
+    FusionTest::timeCompareSampler();
     // SampleFilter sf, sf2;
 
     // std::vector<fusion_radiation::Point> points = {{{1, 0, 0}},

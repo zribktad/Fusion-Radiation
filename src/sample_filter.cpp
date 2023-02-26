@@ -17,6 +17,10 @@ void SampleFilter::loadParameters(mrs_lib::ParamLoader &param_loader) {
     param_loader.loadParam("sample_filter/estimation_min_group_size", estimation_min_group_size);
     /*cicleFilter*/
     param_loader.loadParam("sample_filter/treshold", treshold);
+    param_loader.loadParam("sample_filter/hit_score", hit_score);
+    param_loader.loadParam("sample_filter/miss_score", miss_score);
+    param_loader.loadParam("sample_filter/hit_position", hit_position);
+    param_loader.loadParam("sample_filter/miss_position", miss_position);
     /*SumNumFilter*/
     param_loader.loadParam("sample_filter/nearest_sum_n", nearest_sum_n);
     param_loader.loadParam("sample_filter/queue_sum_n", queue_sum_n);
@@ -382,11 +386,14 @@ void SampleFilter::CicleFilter(Points &samples) {
 
 void SampleFilter::CicleFilter2(Points &samples) {
     priority_queue<Point> data_priority_queue;
-    vector<double> score_dataset(dataset.size(), 0);
+    const ulong dataset_size = dataset.size();
+    vector<double> score_dataset(dataset_size, 0);
 
+    const ulong better_index = dataset_size * hit_position - 1;
+    const ulong worst_index = dataset_size * miss_position - 1;
     for (Point &point : samples) {
         double score_for_point = 0;
-        for (ulong i = 0; i < dataset.size(); ++i) {
+        for (ulong i = 0; i < dataset_size; ++i) {
             Point &ref_point = dataset[i];
             double distance = point.distanceSquared(ref_point);
             if (distance < 0.5) {
@@ -398,21 +405,21 @@ void SampleFilter::CicleFilter2(Points &samples) {
                 // score_dataset[i]--;
             }
         }
-        if (dataset.size()) {
-            point.weight = score_for_point > 0 ? dataset[dataset.size() * 0.7 - 1].weight : dataset[dataset.size() * 0.95 - 1].weight;
+        if (dataset_size) {
+            point.weight = score_for_point > 0 ? dataset[better_index].weight : dataset[worst_index].weight;
         }
-        data_priority_queue.push(point);
+        data_priority_queue.emplace(point);
     }
 
-    for (ulong i = 0; i < dataset.size(); ++i) {
+    for (ulong i = 0; i < dataset_size; ++i) {
         Point &point = dataset[i];
         if (point.weight == INFINITY) {
             point.weight = 0;
         }
 
-        point.weight += score_dataset[i] > 0 ? -5 : 1;
+        point.weight -= score_dataset[i] > 0 ? hit_score : miss_score;
 
-        data_priority_queue.push(point);
+        data_priority_queue.emplace(point);
     }
 
     queueToDataset(data_priority_queue);
@@ -420,6 +427,7 @@ void SampleFilter::CicleFilter2(Points &samples) {
 
 void SampleFilter::setDataset(Points &dataset) {
     SampleFilter::dataset = dataset;
+    dataset.reserve(dataset_limit);
 }
 
 Points SampleFilter::getDataset() {
@@ -428,17 +436,17 @@ Points SampleFilter::getDataset() {
 
 inline void SampleFilter::queueToDataset(priority_queue<Point> &queue) {
     const ulong queue_limit = min((int)queue.size(), dataset_limit);
-    Points new_dataset(queue_limit);
-
+    Points new_dataset;
+    new_dataset.reserve(queue_limit);
     for (int i = 0; i < queue_limit; ++i) {
-        new_dataset[i] = std::move(queue.top());
+        new_dataset.emplace_back(std::move(queue.top()));
         queue.pop();
     }
 
     dataset = std::move(new_dataset);
 }
 
- vector<Vector3d>  SampleFilter::getEstimation()  {
+vector<Vector3d> SampleFilter::getEstimation() {
     return estimation;
 }
 

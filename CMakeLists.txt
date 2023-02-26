@@ -64,6 +64,7 @@ include_directories(
   src/sample_filter.cpp
   src/KDTree.cpp
   src/image_filter.cpp
+  src/fusion_test.cpp
 )
 
 

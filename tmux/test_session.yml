@@ -15,6 +15,6 @@ windows:
   - fusion:
       layout: tiled
       panes: 
-        - cd ~/user_ros_workspace/src/fusion_radiation/tmux; catkin bt && waitForRos && roslaunch fusion_radiation fusion_radiation.launch custom_config:=./custom_configs/fusion.yaml 
+        - cd ~/user_ros_workspace/src/fusion_radiation/tmux; catkin bt && waitForRos && roslaunch fusion_radiation fusion_radiation.launch 
 
 

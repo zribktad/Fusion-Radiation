@@ -21,7 +21,7 @@ class FusionRun {
     inline static SampleFilter filter = {};
 
    public:
-    static void loadTesting(mrs_lib::ParamLoader& param_loader);
+    static void loadParameters(mrs_lib::ParamLoader& param_loader);
     static void generateSample(const Cone& cone, OcTreePtr_t collisions);
     inline static vector<Vector3d> estimation = {};
 };
