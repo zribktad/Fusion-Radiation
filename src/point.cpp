@@ -1,5 +1,6 @@
 #include <point.hpp>
 #include <string>
+#include <ros/ros.h>
 
 
 namespace fusion_radiation {
@@ -63,7 +64,7 @@ void Point::writePoints(const std::vector<Point> &points){
         for (size_t i = 0; i < points.size(); i++)
         {
            const auto & p = points[i];
-           std::cout <<  "Index: "<< i <<" " <<   p.toString() << std::endl;
+           ROS_INFO_STREAM( "Index: "<< i <<" " <<   p.toString() );
         }
         
 }

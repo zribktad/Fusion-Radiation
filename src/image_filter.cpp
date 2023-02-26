@@ -77,11 +77,11 @@ inline void findRectanglesInDistance(cv::Point2d &p, vector<cv::Rect> &found_qua
 inline void ImageFilter::drawToImage(cv::Mat &image, cv::Mat &detected_edges, const vector<Vector3d> &estimates, const vector<vector<cv::Point>> &contours) {
     vector<cv::Rect> found_quads;
     found_quads.reserve(contours.size());
-    for (const auto& contour : contours) {
+    for (const auto &contour : contours) {
         cv::Rect boundingBox = boundingRect(contour);
         found_quads.emplace_back(boundingBox);
-        if(show_edges)
-        cv::rectangle(detected_edges, boundingBox, cv::Scalar(255));
+        if (show_edges)
+            cv::rectangle(detected_edges, boundingBox, cv::Scalar(255));
     }
 
     for (const auto &point3D : estimates) {
@@ -120,17 +120,19 @@ void ImageFilter::findObjectInImage(cv::Mat &image, vector<Vector3d> &estimates)
     vector<vector<cv::Point>> contours;
     cv::findContours(detected_edges, contours, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE);
 
+    drawToImage(image, detected_edges, estimates, contours);
+
     double resize_value = ((double)resize_image) / 100;
     cv::resize(image, image, cv::Size(), resize_value, resize_value, cv::INTER_NEAREST);
 
-    drawToImage(image, detected_edges, estimates, contours);
-
     if (show_edges) {
-        cv::putText(detected_edges, "Threshold min: " + std::to_string(threshold_start) + " max: " + std::to_string(threshold_start + size_threshold), {5, 10}, txt_font, 1, cv::Scalar(255));
-        cv::putText(detected_edges, "Number of points: " + std::to_string(estimates.size()), {5, 25}, txt_font, 1, cv::Scalar(255));
-        cv::putText(detected_edges, "Number of quads: " + std::to_string(contours.size()), {5, 35}, txt_font, 1, cv::Scalar(255));
 
-        cv::resize(detected_edges, detected_edges, cv::Size(), resize_value, resize_value, cv::INTER_NEAREST);
+         cv::resize(detected_edges, detected_edges, cv::Size(), resize_value, resize_value, cv::INTER_NEAREST);
+        cv::putText(detected_edges, "Threshold min: " + std::to_string(threshold_start) + " max: " + std::to_string(threshold_start + size_threshold), {5, 10*resize_value }, txt_font, 1*resize_value , cv::Scalar(255));
+        cv::putText(detected_edges, "Number of points: " + std::to_string(estimates.size()), {5, 25*resize_value }, txt_font, 1*resize_value , cv::Scalar(255));
+        cv::putText(detected_edges, "Number of quads: " + std::to_string(contours.size()), {5, 35*resize_value }, txt_font, 1*resize_value , cv::Scalar(255));
+
+       
         imshow("detected_edges", detected_edges);
     }
 

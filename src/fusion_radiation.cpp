@@ -37,21 +37,17 @@ void FusionRadiation::comptonConeCallBack(const rad_msgs::Cone::ConstPtr& msg) {
     PointVisualzer::clearVisual();
     PointVisualzer::setSourceLocation(radiation_locations);
     PointVisualzer::drawSources();
-    FusionRun::generateSample(cone, octree_out);
+    FusionRun::processData(cone, octree_out);
     ROS_INFO("New compton cone");
 }
 
 void FusionRadiation::octomapCallBack(const octomap_msgs::OctomapConstPtr& msg) {
-    octomap_msgs::OctomapConstPtr octomap = msg;
-    octomap::AbstractOcTree* tree_ptr = nullptr;
+      std::unique_ptr<octomap::AbstractOcTree> tree_ptr(octomap_msgs::msgToMap(*msg));
 
-    tree_ptr = octomap_msgs::msgToMap(*octomap);
-
-    if (!tree_ptr) {
-        ROS_WARN_THROTTLE(1.0, "[OctomapCeilingRemover]: octomap message is empty!");
-        return;
+    if (tree_ptr) {
+        octree_out = OcTreePtr_t(dynamic_cast<octomap::OcTree*>(tree_ptr.release()));
     } else {
-        octree_out = OcTreePtr_t(dynamic_cast<octomap::OcTree*>(tree_ptr));
+        ROS_WARN_THROTTLE(1.0, "[OctomapCeilingRemover]: octomap message is empty!");
     }
 }
 

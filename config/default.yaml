@@ -14,11 +14,12 @@ generator:
     end_dist_weight:  1.0
 
 sample_filter:
-  dataset_limit : 500
+  draw_limit_dataset: 400
+  dataset_limit : 1000
   # /* source Estimations*/
-  estimation_limit: 200
-  estimation_dist: 3.0
-  estimation_min_group_size: 5
+  estimation_limit: 400
+  estimation_dist: 1.0
+  estimation_min_group_size: 10
   # /* Filters  */
    # /*cicleFilter*/
   treshold : 0.5

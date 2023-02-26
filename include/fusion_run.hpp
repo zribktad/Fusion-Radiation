@@ -16,13 +16,12 @@ namespace fusion_radiation {
 
 class FusionRun {
    private:
-    inline static uint estimate_size = 200;
-    inline static uint mark_as_best_size = 200;
     inline static SampleFilter filter = {};
+    inline static int draw_limit_dataset = 400;
 
    public:
     static void loadParameters(mrs_lib::ParamLoader& param_loader);
-    static void generateSample(const Cone& cone, OcTreePtr_t collisions);
+    static void processData(const Cone& cone, OcTreePtr_t collisions);
     inline static vector<Vector3d> estimation = {};
 };
 

@@ -7,23 +7,26 @@ namespace fusion_radiation {
 void FusionRun::loadParameters(mrs_lib::ParamLoader& param_loader) {
     SampleGenerator::loadParameters(param_loader);
     filter.loadParameters(param_loader);
+
+      param_loader.loadParam("sample_filter/draw_limit_dataset", draw_limit_dataset);
 }
 
-void FusionRun::generateSample(const Cone& cone, OcTreePtr_t collisions) {
+void FusionRun::processData(const Cone& cone, OcTreePtr_t collisions) {
     Points samples;
-    SampleGenerator::generateSamplesLines(cone, collisions, samples);
-    ROS_INFO_STREAM(" New generated samples size:" << samples.size() );
-    PointVisualzer::drawPoints(samples, {0.5, 0.5, 0.5, 0.8});
-   
-//    /*Filter part */
-//    filter.CicleFilter(samples);
-//     //get estimation of radiation sources
-    
-//     filter.estimateManySources(estimation);
-//     PointVisualzer::drawPoints(estimation, {0, 1, 0, 1});
+    /*Sampling*/
+    SampleGenerator::generateSamplesUniform(cone, collisions, samples);
+    ROS_INFO_STREAM(" New generated samples size:" << samples.size());
 
-//    const auto& dataset = filter.getDataset();
-//     PointVisualzer::drawPoints(dataset, {0, 0, 1, 0.8}, (const ulong)200);
-//    // Point::writePoints(dataset);
+    /*Filter part */
+    filter.CicleFilter(samples);
+
+    filter.estimateManySources(estimation);  // get estimation of radiation sources
+    const auto& dataset = filter.getDataset();
+
+    /*Drawing*/
+    PointVisualzer::drawPoints(samples, {0.5, 0.5, 0.5, 0.8});
+    PointVisualzer::drawPoints(estimation, {0, 1, 0, 1});
+    PointVisualzer::drawPoints(dataset, {0, 0, 1, 0.8}, (const ulong)draw_limit_dataset);
+    // Point::writePoints(dataset);
 }
 }  // namespace fusion_radiation

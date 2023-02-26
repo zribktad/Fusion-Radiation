@@ -35,6 +35,7 @@ void SampleFilter::loadParameters(mrs_lib::ParamLoader &param_loader) {
 }
 
 void SampleFilter::estimateManySources(vector<Vector3d> &estimation) {
+    estimation.clear();
     const int dataset_size = dataset.size();
     const uint limit = estimation_limit != 0 ? min(dataset_size, estimation_limit) : dataset_size;
     vector<int> group(limit, -1);
