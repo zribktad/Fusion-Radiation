@@ -4,7 +4,7 @@
   <arg name="uav_name" default="$(optenv UAV_NAME uav)"/>
   <arg name="custom_config" default="" />
   <group ns="$(arg uav_name)">
-  <node name="fusion_radiation" pkg="fusion_radiation" type="fusion_radiation"  args="standalone fusion_radiation" output="screen">
+  <node name="fusion_radiation" pkg="nodelet" type="nodelet"  args="standalone fusion_radiation/fusion_radiation" output="screen">
 
     <rosparam file="$(find fusion_radiation)/config/default.yaml" command="load" />
     <rosparam if="$(eval not arg('custom_config') == '')" file="$(arg custom_config)" />

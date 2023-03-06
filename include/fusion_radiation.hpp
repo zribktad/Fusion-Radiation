@@ -7,10 +7,10 @@
 #include <mrs_lib/batch_visualizer.h>
 #include <mrs_lib/transformer.h>
 
-
 /* msgs */
 #include <geometry_msgs/PoseStamped.h>
 #include <std_msgs/Float32.h>
+#include <gazebo_rad_msgs/RadiationSource.h>
 
 /* octomap */
 #include <octomap/OcTree.h>
@@ -28,6 +28,7 @@
 #include <functional>
 #include <iostream>
 #include <vector>
+#include <map>
 
 /*My library*/
 #include <cone.hpp>
@@ -44,11 +45,8 @@ using namespace Eigen;
 
 
 namespace fusion_radiation {
-class FusionRadiation {
-   public:
-    FusionRadiation() {
-        onInit();
-    }
+class FusionRadiation: public nodelet::Nodelet {
+
 
    private:
     ros::Subscriber source_sub;
@@ -58,16 +56,13 @@ class FusionRadiation {
     /******** parameters *****************/
     string _uav_name_;
 
-    void onInit();
+    virtual void onInit();
     inline void loadParameters();
 
     /********* Sources  position  **************/
-    vector<ros::Subscriber> source_subscribers;
-    vector<Vector3d> radiation_locations;
-    void setSourceRadiationPositionCallback0(const geometry_msgs::PoseStampedConstPtr& msg);
-    void setSourceRadiationPositionCallback1(const geometry_msgs::PoseStampedConstPtr& msg);
-    void setSourceRadiationPositionCallback2(const geometry_msgs::PoseStampedConstPtr& msg);
-    void setSourceRadiationPositionCallback4(const geometry_msgs::PoseStampedConstPtr& msg, const int index);
+    ros::Subscriber source_subscriber;
+    map<int,Vector3d> radiation_sources;
+    void setSourceRadiationPositionCallback(const gazebo_rad_msgs::RadiationSourceConstPtr& msg);
     void initSourcesCallbacks();
 
     /************ Compton cone  ************/
@@ -97,4 +92,6 @@ class FusionRadiation {
 
 }  // namespace fusion_radiation
 
+#include <pluginlib/class_list_macros.h>
+PLUGINLIB_EXPORT_CLASS(fusion_radiation::FusionRadiation, nodelet::Nodelet)
 #endif

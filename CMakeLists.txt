@@ -32,12 +32,13 @@ find_package(catkin REQUIRED COMPONENTS
   cv_bridge
   image_transport
   image_geometry
+  gazebo_rad_msgs
   
 )
 
 
 catkin_package(
-   CATKIN_DEPENDS nodelet rospy std_msgs message_runtime rad_msgs mrs_lib rad_utils mrs_msgs sensor_msgs
+   CATKIN_DEPENDS nodelet rospy std_msgs message_runtime rad_msgs mrs_lib rad_utils mrs_msgs sensor_msgs gazebo_rad_msgs
    LIBRARIES Cone
    DEPENDS Eigen
 )
@@ -53,8 +54,7 @@ include_directories(
   find_package(octomap REQUIRED)
   
  
-  add_executable(fusion_radiation
-  src/main.cpp
+  add_library(fusion_radiation
   src/fusion_radiation.cpp
   src/fusion_run.cpp
   src/point.cpp

@@ -3,10 +3,15 @@
 #include <mrs_lib/param_loader.h>
 
 #include "image_filter.hpp"
+#include "fusion_test.hpp"
+
+
 
 namespace fusion_radiation {
 
 void FusionRadiation::onInit() {
+
+   
     loadParameters();
     initSourcesCallbacks();
     initComptonConeCallBack();
@@ -15,6 +20,7 @@ void FusionRadiation::onInit() {
     bv = mrs_lib::BatchVisualizer(n, "markers_visualizer", _uav_name_ + string("/gps_origin"));
     PointVisualzer::init(bv);
     ImageFilter::initImageFilter(n, _uav_name_);
+    // FusionTest::timeCompareSampler();
 }
 inline void FusionRadiation::loadParameters() {
     ROS_INFO("[FusionRadiation]: initializing");
@@ -35,7 +41,7 @@ inline void FusionRadiation::loadParameters() {
 void FusionRadiation::comptonConeCallBack(const rad_msgs::Cone::ConstPtr& msg) {
     const Cone cone(msg);
     PointVisualzer::clearVisual();
-    PointVisualzer::setSourceLocation(radiation_locations);
+    PointVisualzer::setSourceLocation(radiation_sources);
     PointVisualzer::drawSources();
     FusionRun::processData(cone, octree_out);
     ROS_INFO("New compton cone");
@@ -61,38 +67,6 @@ void FusionRadiation::imageCallback(const sensor_msgs::ImageConstPtr& msg) {
     ImageFilter::findObjectInImage(image, FusionRun::estimation);
 }
 
-void FusionRadiation::setSourceRadiationPositionCallback0(const geometry_msgs::PoseStampedConstPtr& msg) {
-    const int index = 0;
-    Vector3d pose;
-
-    pose.x() = msg->pose.position.x;
-    pose.y() = msg->pose.position.y;
-    pose.z() = msg->pose.position.z;
-
-    if (radiation_locations.size() < 1) {
-        radiation_locations.resize(1);
-    }
-    radiation_locations[index] = pose;
-}
-void FusionRadiation::setSourceRadiationPositionCallback1(const geometry_msgs::PoseStampedConstPtr& msg) {
-    const int index = 1;
-
-    if (radiation_locations.size() < 2) {
-        radiation_locations.resize(2);
-    }
-    radiation_locations[index].x() = msg->pose.position.x;
-    radiation_locations[index].y() = msg->pose.position.y;
-    radiation_locations[index].z() = msg->pose.position.z;
-}
-void FusionRadiation::setSourceRadiationPositionCallback2(const geometry_msgs::PoseStampedConstPtr& msg) {
-    const int index = 2;
-    if (radiation_locations.size() < 3) {
-        radiation_locations.resize(3);
-    }
-    radiation_locations[index].x() = msg->pose.position.x;
-    radiation_locations[index].y() = msg->pose.position.y;
-    radiation_locations[index].z() = msg->pose.position.z;
-}
 
  void FusionRadiation::initComptonConeCallBack() {
     const string cone_topic = string("/") + _uav_name_ + string("/compton_cone_generator/cones");
@@ -112,29 +86,14 @@ void FusionRadiation::setSourceRadiationPositionCallback2(const geometry_msgs::P
 }
 
 
-void FusionRadiation::setSourceRadiationPositionCallback4(const geometry_msgs::PoseStampedConstPtr& msg, const int index) {
-    if (index >= radiation_locations.size()) {
-        radiation_locations.resize(index+1);
-    }
-    Vector3d& pose = radiation_locations[index];
-
-    pose.x() = msg->pose.position.x;
-    pose.y() = msg->pose.position.y;
-    pose.z() = msg->pose.position.z;
+void FusionRadiation::setSourceRadiationPositionCallback(const gazebo_rad_msgs::RadiationSourceConstPtr& msg) {
+    radiation_sources[msg->id]=Vector3d{msg->world_pos.x,msg->world_pos.y,msg->world_pos.z};
 }
 
 void FusionRadiation::initSourcesCallbacks() {
-    radiation_locations.reserve(3);
+    //radiation_locations.reserve(3);
 
-    ros::Subscriber source_subscriber;
-    source_subscriber = n.subscribe("/gazebo/cs137_100GBq/source_gt", 10,&FusionRadiation::setSourceRadiationPositionCallback0, this);
-    source_subscribers.emplace_back(source_subscriber);
-
-    source_subscriber = n.subscribe("/gazebo/cs137_100GBq_0/source_gt", 10, &FusionRadiation::setSourceRadiationPositionCallback1, this);
-    source_subscribers.emplace_back(source_subscriber);
-
-    source_subscriber = n.subscribe("/gazebo/cs137_100GBq_1/source_gt", 10, &FusionRadiation::setSourceRadiationPositionCallback2, this);
-    source_subscribers.emplace_back(source_subscriber);
+    source_subscriber = n.subscribe<gazebo_rad_msgs::RadiationSource>("/radiation/sources", 10,&FusionRadiation::setSourceRadiationPositionCallback, this);
 }
 
 

@@ -6,7 +6,7 @@ void PointVisualzer::init(mrs_lib::BatchVisualizer &bv) {
     PointVisualzer::bv = bv;
 }
 
-void PointVisualzer::setSourceLocation(vector<Vector3d> &locations) {
+void PointVisualzer::setSourceLocation(map<int, Vector3d> &locations) {
     PointVisualzer::radiation_locations = locations;
 }
 
@@ -46,7 +46,16 @@ void PointVisualzer::drawPoints(const Points &points, const Vector4f &color, con
 }
 
 void PointVisualzer::drawSources(const double scale) {
-    drawPoints(radiation_locations, {1, 0, 0, 1});
-}
+    bv.setPointsScale(scale);
+    // drawPoints(radiation_locations, {1, 0, 0, 1});
+    map<int, Vector3d>::iterator itr;
+    for (itr = radiation_locations.begin(); itr != radiation_locations.end(); ++itr) {
+        const auto &p = itr->second;
+        bv.addPoint(p, 1, 0, 0, 1);
+    }
+
+    bv.publish();
+    ros::spinOnce();
 
 }  // namespace fusion_radiation
+}
