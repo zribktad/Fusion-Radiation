@@ -16,7 +16,8 @@ void SampleFilter::loadParameters(mrs_lib::ParamLoader &param_loader) {
     param_loader.loadParam("sample_filter/estimation_dist", estimation_dist);
     param_loader.loadParam("sample_filter/estimation_min_group_size", estimation_min_group_size);
     /*cicleFilter*/
-    param_loader.loadParam("sample_filter/treshold", treshold);
+    param_loader.loadParam("sample_filter/threshold_distance", threshold_distance);
+    param_loader.loadParam("sample_filter/threshold_hit", threshold_hit);
     param_loader.loadParam("sample_filter/hit_score", hit_score);
     param_loader.loadParam("sample_filter/miss_score", miss_score);
     param_loader.loadParam("sample_filter/hit_position", hit_position);
@@ -347,10 +348,11 @@ void SampleFilter::CircleFilter(Points &samples) {
     vector<double> score_samples(samples.size());
     KDTree tree(samples);  // Build KD-Tree for efficient nearest-neighbor search
     const ulong dataset_size = dataset.size();
+    const int c_threshold_hit = threshold_hit;
     for (ulong i = 0; i < dataset_size; ++i) {  // Calculate score for each point in the dataset
 
         vector<ulong> result;
-        tree.findPointsWithinDistance(dataset[i], treshold, result);  // Find all points within a certain distance of the current point in the dataset
+        tree.findPointsWithinDistance(dataset[i], threshold_distance, result);  // Find all points within a certain distance of the current point in the dataset
 
         score_dataset[i] += result.size();  // Increase the score of the current dataset point by the number of nearby points found
 
@@ -365,7 +367,7 @@ void SampleFilter::CircleFilter(Points &samples) {
         const ulong worst_index = dataset_size * miss_position - 1;
         for (ulong j = 0; j < samples_size; j++) {  // Assign weights to each sample point based on nearby dataset point scores
             Point &point = samples[j];
-            point.weight = score_samples[j] > 0 ? dataset[better_index].weight : dataset[worst_index].weight;
+            point.weight = score_samples[j] > c_threshold_hit ? dataset[better_index].weight : dataset[worst_index].weight;
             dataset_q.emplace(point);  // Add the sample point to the priority queue
         }
     } else {
@@ -377,7 +379,7 @@ void SampleFilter::CircleFilter(Points &samples) {
     }
     for (ulong i = 0; i < dataset_size; ++i) {  // Adjust weights of dataset points based on their scores
         Point &point = dataset[i];
-        point.weight -= score_dataset[i] > 0 ? hit_score : miss_score;
+        point.weight -= score_dataset[i] > c_threshold_hit ? hit_score : miss_score;
         dataset_q.emplace(point);  // Add the dataset point to the priority queue
     }
     // Convert the priority queue to a vector and store it as the new dataset
@@ -388,7 +390,7 @@ void SampleFilter::CircleFilter2(Points &samples) {
     priority_queue<Point> data_priority_queue;
     const ulong dataset_size = dataset.size();
     vector<double> score_dataset(dataset_size, 0);
-
+    const int c_threshold_hit = threshold_hit;
     const ulong better_index = dataset_size * hit_position - 1;
     const ulong worst_index = dataset_size * miss_position - 1;
     for (Point &point : samples) {
@@ -396,7 +398,7 @@ void SampleFilter::CircleFilter2(Points &samples) {
         for (ulong i = 0; i < dataset_size; ++i) {
             Point &ref_point = dataset[i];
             double distance = point.distanceSquared(ref_point);
-            if (distance < 0.5) {
+            if (distance < threshold_distance) {
                 score_for_point++;
                 // if(!score_dataset[i])
                 score_dataset[i]++;
@@ -406,7 +408,7 @@ void SampleFilter::CircleFilter2(Points &samples) {
             }
         }
         if (dataset_size) {
-            point.weight = score_for_point > 0 ? dataset[better_index].weight : dataset[worst_index].weight;
+            point.weight = score_for_point > c_threshold_hit ? dataset[better_index].weight : dataset[worst_index].weight;
         }
         data_priority_queue.emplace(point);
     }
@@ -417,7 +419,7 @@ void SampleFilter::CircleFilter2(Points &samples) {
             point.weight = 0;
         }
 
-        point.weight -= score_dataset[i] > 0 ? hit_score : miss_score;
+        point.weight -= score_dataset[i] > c_threshold_hit ? hit_score : miss_score;
 
         data_priority_queue.emplace(point);
     }

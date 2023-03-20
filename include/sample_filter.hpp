@@ -43,11 +43,13 @@ class SampleFilter {
     int estimation_min_group_size = 5;
     /* Filters  */
     /*cicleFilter*/
-    double treshold = 0.5;
+    int threshold_hit =0;
+    double threshold_distance = 0.5;
     int hit_score = 5;
     int miss_score = -1;
     double hit_position = 0.7;
     double miss_position = 0.95;
+
     /*SumNumFilter*/
     double nearest_sum_n = 2;
     int queue_sum_n = 1;
