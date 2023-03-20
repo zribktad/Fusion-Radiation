@@ -18,7 +18,7 @@ void FusionRun::processData(const Cone& cone, OcTreePtr_t collisions) {
     ROS_INFO_STREAM(" New generated samples size:" << samples.size());
 
     /*Filter part */
-    filter.CicleFilter(samples);
+    filter.CircleFilter(samples);
 
     filter.estimateManySources(estimation);  // get estimation of radiation sources
     const auto& dataset = filter.getDataset();

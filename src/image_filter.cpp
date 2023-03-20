@@ -110,7 +110,7 @@ void ImageFilter::findObjectInImage(cv::Mat &image, vector<Vector3d> &estimates)
     if (dilation != 0) {
         int size = 2 * dilation_size + 1;
         Mat element = getStructuringElement(MORPH_RECT, Size(size, size), Point(dilation_size, dilation_size));
-        dilate(image, image, element);
+        dilate(gray, gray, element);
     }
 
     cv::Mat tmp;

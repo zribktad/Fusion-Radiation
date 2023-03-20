@@ -91,8 +91,7 @@ void SampleFilter::SumNumFilter(Points &samples) {
         double sum = 0;
         for (size_t i = 0; i < distances.size(); i++) {
             sum += distances[i];
-            auto &d_s = distances_samples[indexes[i]];
-            d_s.emplace(distances[i]);
+            distances_samples[indexes[i]].emplace(distances[i]);
         }
 
         if (point.weight == INFINITY) {
@@ -333,7 +332,7 @@ void SampleFilter::WorstOfNumFilter(Points &samples) {
                 point.weight = sum_dist / limit_out;
                 point.coeff = limit_out;
             } else {
-                point.weight = point.weight + (sum_dist - point.weight) / (point.coeff + limit_out);
+                point.weight = (point.weight * point.coeff + sum_dist) / (point.coeff + limit_out);
                 point.coeff += limit_out;
             }
         data_priority_queue.emplace(point);
@@ -341,7 +340,7 @@ void SampleFilter::WorstOfNumFilter(Points &samples) {
     queueToDataset(data_priority_queue);
 }
 
-void SampleFilter::CicleFilter(Points &samples) {
+void SampleFilter::CircleFilter(Points &samples) {
     // Initialize priority queue and score vectors
     priority_queue<Point> dataset_q;
     vector<double> score_dataset(dataset.size());
@@ -385,7 +384,7 @@ void SampleFilter::CicleFilter(Points &samples) {
     queueToDataset(dataset_q);
 }
 
-void SampleFilter::CicleFilter2(Points &samples) {
+void SampleFilter::CircleFilter2(Points &samples) {
     priority_queue<Point> data_priority_queue;
     const ulong dataset_size = dataset.size();
     vector<double> score_dataset(dataset_size, 0);

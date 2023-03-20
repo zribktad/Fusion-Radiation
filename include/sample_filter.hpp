@@ -16,8 +16,8 @@ namespace fusion_radiation {
 class SampleFilter {
    public:
     void loadParameters(mrs_lib::ParamLoader &param_loader);
-    void CicleFilter(Points &samples);
-    void CicleFilter2(Points &samples);
+    void CircleFilter(Points &samples);
+    void CircleFilter2(Points &samples);
     void BestOfNumFilter(Points &samples);
     void SumNumFilter(Points &samples);
     void SumOneFilter(Points &samples);
@@ -49,8 +49,8 @@ class SampleFilter {
     double hit_position = 0.7;
     double miss_position = 0.95;
     /*SumNumFilter*/
-    int nearest_sum_n = 2;
-    int queue_sum_n = 3;
+    double nearest_sum_n = 2;
+    int queue_sum_n = 1;
     /*BestOfNumFilter*/
     double input_coef_avg_best = 0.4;  //<0, 1>
     int output_size_avg_best = 1;      // N
