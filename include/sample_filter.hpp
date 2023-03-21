@@ -16,14 +16,14 @@ namespace fusion_radiation {
 class SampleFilter {
    public:
     void loadParameters(mrs_lib::ParamLoader &param_loader);
-    void CircleFilter(Points &samples);
-    void CircleFilter2(Points &samples);
-    void BestOfNumFilter(Points &samples);
-    void SumNumFilter(Points &samples);
-    void SumOneFilter(Points &samples);
-    void SumAllFilter(Points &samples);
-    void RandomFilter(Points &samples);
-    void WorstOfNumFilter(Points &samples);
+    void SurroundingModel(Points &samples);
+    void SurroundingModel2(Points &samples);
+    void AverageModel(Points &samples);
+    void AverageTreeModel(Points &samples);
+    void SumOneModel(Points &samples);
+    void SumAllModel(Points &samples);
+    void RandomModel(Points &samples);
+    void WorstOfNumModel(Points &samples);
     void estimateManySources(vector<Vector3d> &estimation);
     void setDataset(Points &dataset);
     Points getDataset();
@@ -50,15 +50,15 @@ class SampleFilter {
     double hit_position = 0.7;
     double miss_position = 0.95;
 
-    /*SumNumFilter*/
+    /*AverageTreeModel*/
     double nearest_sum_n = 2;
     int queue_sum_n = 1;
-    /*BestOfNumFilter*/
+    /*AverageModel*/
     double input_coef_avg_best = 0.4;  //<0, 1>
     int output_size_avg_best = 1;      // N
-    /*RandomFilter*/
+    /*RandomModel*/
     double random_sample_coef = 0.33;  // 1/N
-    /*WorstOfNumFilter*/
+    /*WorstOfNumModel*/
     int input_size_avg_worst = 10;       // N
     double output_coef_avg_worst = 0.4;  //<0, 1>
 };

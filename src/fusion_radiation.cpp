@@ -2,16 +2,12 @@
 
 #include <mrs_lib/param_loader.h>
 
-#include "image_filter.hpp"
 #include "fusion_test.hpp"
-
-
+#include "image_filter.hpp"
 
 namespace fusion_radiation {
 
 void FusionRadiation::onInit() {
-
-   
     loadParameters();
     initSourcesCallbacks();
     initComptonConeCallBack();
@@ -39,16 +35,18 @@ inline void FusionRadiation::loadParameters() {
 }
 
 void FusionRadiation::comptonConeCallBack(const rad_msgs::Cone::ConstPtr& msg) {
+    ROS_INFO("New compton cone");
     const Cone cone(msg);
     PointVisualzer::clearVisual();
     PointVisualzer::setSourceLocation(radiation_sources);
     PointVisualzer::drawSources();
+    csv_radiations.writeRadiations(radiation_sources);
+
     FusionRun::processData(cone, octree_out);
-    ROS_INFO("New compton cone");
 }
 
 void FusionRadiation::octomapCallBack(const octomap_msgs::OctomapConstPtr& msg) {
-      std::unique_ptr<octomap::AbstractOcTree> tree_ptr(octomap_msgs::msgToMap(*msg));
+    std::unique_ptr<octomap::AbstractOcTree> tree_ptr(octomap_msgs::msgToMap(*msg));
 
     if (tree_ptr) {
         octree_out = OcTreePtr_t(dynamic_cast<octomap::OcTree*>(tree_ptr.release()));
@@ -67,34 +65,31 @@ void FusionRadiation::imageCallback(const sensor_msgs::ImageConstPtr& msg) {
     ImageFilter::findObjectInImage(image, FusionRun::estimation);
 }
 
-
- void FusionRadiation::initComptonConeCallBack() {
+void FusionRadiation::initComptonConeCallBack() {
     const string cone_topic = string("/") + _uav_name_ + string("/compton_cone_generator/cones");
     cone_subscriber = n.subscribe(cone_topic, 1, &FusionRadiation::comptonConeCallBack, this);
 }
 
- void FusionRadiation::initOctomapCallBack() {
+void FusionRadiation::initOctomapCallBack() {
     const string octomap_topic = string("/") + _uav_name_ + string("/octomap_server/octomap_global_full");
     octomap_subscriber = n.subscribe(octomap_topic, 1, &FusionRadiation::octomapCallBack, this);
 }
 
- void FusionRadiation::initCameraCallBacks() {
+void FusionRadiation::initCameraCallBacks() {
     const string image_topic = string("/") + _uav_name_ + string("/mobius_front/image_raw");
     const string camera_info_topic = string("/") + _uav_name_ + string("/mobius_front/camera_info");
-    camera_image_sub = n.subscribe(image_topic, 1, &FusionRadiation::imageCallback, this);
+    //! CSC camera_image_sub = n.subscribe(image_topic, 1, &FusionRadiation::imageCallback, this);
     camera_info_sub = n.subscribe(camera_info_topic, 1, &FusionRadiation::cameraInfoCallback, this);
 }
 
-
 void FusionRadiation::setSourceRadiationPositionCallback(const gazebo_rad_msgs::RadiationSourceConstPtr& msg) {
-    radiation_sources[msg->id]=Vector3d{msg->world_pos.x,msg->world_pos.y,msg->world_pos.z};
+    radiation_sources[msg->id] = Vector3d{msg->world_pos.x, msg->world_pos.y, msg->world_pos.z};
 }
 
 void FusionRadiation::initSourcesCallbacks() {
-    //radiation_locations.reserve(3);
+    // radiation_locations.reserve(3);
 
-    source_subscriber = n.subscribe<gazebo_rad_msgs::RadiationSource>("/radiation/sources", 10,&FusionRadiation::setSourceRadiationPositionCallback, this);
+    source_subscriber = n.subscribe<gazebo_rad_msgs::RadiationSource>("/radiation/sources", 10, &FusionRadiation::setSourceRadiationPositionCallback, this);
 }
-
 
 }  // namespace fusion_radiation

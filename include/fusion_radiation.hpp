@@ -35,6 +35,7 @@
 #include "point_visualizer.hpp"
 #include "fusion_run.hpp"
 #include "image_filter.hpp"
+#include "csv_file_writer.hpp"
 
 
 
@@ -88,6 +89,10 @@ class FusionRadiation: public nodelet::Nodelet {
     /*************** openCL ****************/
     inline static const std::string color_encoding = "bgr8";
     inline static const std::string grayscale_encoding = "mono8";
+
+
+     /******** csv *****************/
+     inline static CSVFileWriter csv_radiations = {"rad_src"};
 };
 
 }  // namespace fusion_radiation

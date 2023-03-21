@@ -22,15 +22,15 @@ void SampleFilter::loadParameters(mrs_lib::ParamLoader &param_loader) {
     param_loader.loadParam("sample_filter/miss_score", miss_score);
     param_loader.loadParam("sample_filter/hit_position", hit_position);
     param_loader.loadParam("sample_filter/miss_position", miss_position);
-    /*SumNumFilter*/
+    /*AverageTreeModel*/
     param_loader.loadParam("sample_filter/nearest_sum_n", nearest_sum_n);
     param_loader.loadParam("sample_filter/queue_sum_n", queue_sum_n);
-    /*BestOfNumFilter*/
+    /*AverageModel*/
     param_loader.loadParam("sample_filter/input_coef_avg_best", input_coef_avg_best);
     param_loader.loadParam("sample_filter/output_size_avg_best", output_size_avg_best);
-    /*RandomFilter*/
+    /*RandomModel*/
     param_loader.loadParam("sample_filter/random_sample_coef", random_sample_coef);
-    /*WorstOfNumFilter*/
+    /*WorstOfNumModel*/
     param_loader.loadParam("sample_filter/input_size_avg_worst", input_size_avg_worst);
     param_loader.loadParam("sample_filter/output_coef_avg_worst", output_coef_avg_worst);
 }
@@ -79,7 +79,7 @@ void SampleFilter::estimateManySources(vector<Vector3d> &estimation) {
     this->estimation = estimation;
 }
 
-void SampleFilter::SumNumFilter(Points &samples) {
+void SampleFilter::AverageTreeModel(Points &samples) {
     KDTree tree(samples);
     priority_queue<Point> dataset_q;
     vector<priority_queue<double, vector<double>, greater<double>>> distances_samples(samples.size());
@@ -122,7 +122,7 @@ void SampleFilter::SumNumFilter(Points &samples) {
     queueToDataset(dataset_q);
 }
 
-void SampleFilter::BestOfNumFilter(Points &samples) {
+void SampleFilter::AverageModel(Points &samples) {
     priority_queue<Point> data_priority_queue;
     vector<vector<double>> ref_new_weights(dataset.size());
     const ulong limit_in = (ulong)(dataset.size() * input_coef_avg_best);
@@ -171,7 +171,7 @@ void SampleFilter::BestOfNumFilter(Points &samples) {
 }
 
 // Choose BEST OF DISTANCE
-void SampleFilter::SumOneFilter(Points &samples) {
+void SampleFilter::SumOneModel(Points &samples) {
     KDTree tree(dataset);
     priority_queue<Point> data_priority_queue;
     vector<double> dataset_weights(dataset.size(), INFINITY);
@@ -209,7 +209,7 @@ void SampleFilter::SumOneFilter(Points &samples) {
 }
 
 // all for all
-void SampleFilter::SumAllFilter(Points &samples) {
+void SampleFilter::SumAllModel(Points &samples) {
     priority_queue<Point> data_priority_queue;
     vector<double> ref_new_weights(dataset.size());
     vector<ulong> ref_new_weights_count(dataset.size());
@@ -249,7 +249,7 @@ void SampleFilter::SumAllFilter(Points &samples) {
     queueToDataset(data_priority_queue);
 }
 
-void SampleFilter::RandomFilter(Points &samples) {
+void SampleFilter::RandomModel(Points &samples) {
     priority_queue<Point> data_priority_queue;
     vector<double> ref_new_weights(dataset.size(), INFINITY);
 
@@ -290,7 +290,7 @@ void SampleFilter::RandomFilter(Points &samples) {
     queueToDataset(data_priority_queue);
 }
 
-void SampleFilter::WorstOfNumFilter(Points &samples) {
+void SampleFilter::WorstOfNumModel(Points &samples) {
     priority_queue<Point> data_priority_queue;
     vector<priority_queue<double>> ref_new_weights(dataset.size());
     // const ulong limit_in = (ulong)dataset.size() *input_size_avg_worst ;
@@ -341,7 +341,7 @@ void SampleFilter::WorstOfNumFilter(Points &samples) {
     queueToDataset(data_priority_queue);
 }
 
-void SampleFilter::CircleFilter(Points &samples) {
+void SampleFilter::SurroundingModel(Points &samples) {
     // Initialize priority queue and score vectors
     priority_queue<Point> dataset_q;
     vector<double> score_dataset(dataset.size());
@@ -386,7 +386,7 @@ void SampleFilter::CircleFilter(Points &samples) {
     queueToDataset(dataset_q);
 }
 
-void SampleFilter::CircleFilter2(Points &samples) {
+void SampleFilter::SurroundingModel2(Points &samples) {
     priority_queue<Point> data_priority_queue;
     const ulong dataset_size = dataset.size();
     vector<double> score_dataset(dataset_size, 0);

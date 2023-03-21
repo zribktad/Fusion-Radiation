@@ -1,5 +1,6 @@
 #include "fusion_run.hpp"
 
+
 #include <iostream>
 
 namespace fusion_radiation {
@@ -18,9 +19,10 @@ void FusionRun::processData(const Cone& cone, OcTreePtr_t collisions) {
     ROS_INFO_STREAM(" New generated samples size:" << samples.size());
 
     /*Filter part */
-    filter.CircleFilter(samples);
+    filter.SurroundingModel(samples);
 
     filter.estimateManySources(estimation);  // get estimation of radiation sources
+    csv_estimations.writePoints(estimation);
     const auto& dataset = filter.getDataset();
 
     /*Drawing*/

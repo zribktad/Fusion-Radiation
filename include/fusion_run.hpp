@@ -11,6 +11,7 @@
 #include "point_visualizer.hpp"
 #include "sample_filter.hpp"
 #include "sample_generator.hpp"
+#include "csv_file_writer.hpp"
 
 namespace fusion_radiation {
 
@@ -18,6 +19,8 @@ class FusionRun {
    private:
     inline static SampleFilter filter = {};
     inline static int draw_limit_dataset = 400;
+    inline static CSVFileWriter csv_estimations = {"estim"}; 
+    inline static CSVFileWriter csv_particles = {"part"}; 
 
    public:
     static void loadParameters(mrs_lib::ParamLoader& param_loader);
