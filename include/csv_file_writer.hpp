@@ -45,7 +45,7 @@ class CSVFileWriter {
         closeFile();
     }
     void writePoints(const Points &points) {
-       uint64_t timestamp= ros::Time::now().nsec;
+       double timestamp= ros::Time::now().toSec();
        outfile_ << timestamp;
         for (const auto &point : points) {
             outfile_ << "," << point.coord.x() << "," << point.coord.y() << "," << point.coord.z();
@@ -54,7 +54,7 @@ class CSVFileWriter {
     }
 
     void writePoints(const vector<Vector3d> &points) {
-        writePoints(points, ros::Time::now().nsec);
+        writePoints(points, ros::Time::now().toSec());
     }
 
     void writePoints(const vector<Vector3d> &points, uint64_t timestamp) {
@@ -68,7 +68,10 @@ class CSVFileWriter {
     void writeRadiations(map<int, Vector3d> &radiation_locations) {
         map<int, Vector3d>::iterator itr;
         for (itr = radiation_locations.begin(); itr != radiation_locations.end(); ++itr) {
+           if(radiations.find(itr->first)!=radiations.end()){
             writeRadiation(itr->second);
+            radiation_locations[itr->first]=itr->second;
+           }
         }
     }
     void writeRadiation(const Vector3d &radiation) {
@@ -86,5 +89,6 @@ class CSVFileWriter {
    private:
     std::string filename_;
     std::ofstream outfile_;
+    map<int, Vector3d> radiations;
 };
 #endif
