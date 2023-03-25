@@ -13,6 +13,7 @@ void FusionRadiation::onInit() {
     initComptonConeCallBack();
     initOctomapCallBack();
     initCameraCallBacks();
+    
     bv = mrs_lib::BatchVisualizer(n, "markers_visualizer", _uav_name_ + string("/gps_origin"));
     PointVisualzer::init(bv);
     ImageFilter::initImageFilter(n, _uav_name_);
@@ -24,7 +25,9 @@ inline void FusionRadiation::loadParameters() {
     mrs_lib::ParamLoader param_loader(n, "fusion_radiation");
     param_loader.setPrefix("fusion_radiation/");
     param_loader.loadParam("uav_name", _uav_name_);
-    FusionRun::loadParameters(param_loader);
+    SampleGenerator::loadParameters(param_loader);
+    filter.loadParameters(param_loader);
+    param_loader.loadParam("sample_filter/draw_limit_dataset", draw_limit_dataset);
     ImageFilter::loadParameters(param_loader);
 
     if (!param_loader.loadedSuccessfully()) {
@@ -39,10 +42,32 @@ void FusionRadiation::comptonConeCallBack(const rad_msgs::Cone::ConstPtr& msg) {
     const Cone cone(msg);
     PointVisualzer::clearVisual();
     PointVisualzer::setSourceLocation(radiation_sources);
+    
+    
     PointVisualzer::drawSources();
     csv_radiations.writeRadiations(radiation_sources);
 
-    FusionRun::processData(cone, octree_out);
+    processData(cone, octree_out);
+}
+
+void FusionRadiation::processData(const Cone& cone, OcTreePtr_t collisions) {
+    Points samples;
+    /*Sampling*/
+    SampleGenerator::generateSamplesUniform(cone, collisions, samples);
+    ROS_INFO_STREAM(" New generated samples size:" << samples.size());
+
+    /*Filter part */
+    filter.SurroundingModel(samples);
+
+    filter.estimateManySources(estimation);  // get estimation of radiation sources
+    csv_estimations.writePoints(estimation);
+    const auto& dataset = filter.getDataset();
+
+    /*Drawing*/
+    PointVisualzer::drawPoints(samples, {0.5, 0.5, 0.5, 0.8});
+    PointVisualzer::drawPoints(estimation, {0, 1, 0, 1});
+    PointVisualzer::drawPoints(dataset, {0, 0, 1, 0.8}, (const ulong)draw_limit_dataset);
+    // Point::writePoints(dataset);
 }
 
 void FusionRadiation::octomapCallBack(const octomap_msgs::OctomapConstPtr& msg) {
@@ -62,7 +87,7 @@ void FusionRadiation::imageCallback(const sensor_msgs::ImageConstPtr& msg) {
     const cv_bridge::CvImageConstPtr bridge_image_ptr = cv_bridge::toCvShare(msg, color_encoding);
     cv::Mat image = bridge_image_ptr->image;
     ImageFilter::loadCameraModel(camera_model_);
-    ImageFilter::findObjectInImage(image, FusionRun::estimation);
+    ImageFilter::findObjectInImage(image, estimation);
 }
 
 void FusionRadiation::initComptonConeCallBack() {

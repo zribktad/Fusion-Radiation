@@ -68,7 +68,7 @@ class CSVFileWriter {
     void writeRadiations(map<int, Vector3d> &radiation_locations) {
         map<int, Vector3d>::iterator itr;
         for (itr = radiation_locations.begin(); itr != radiation_locations.end(); ++itr) {
-           if(radiations.find(itr->first)!=radiations.end()){
+           if(radiations.find(itr->first)==radiations.end()){
             writeRadiation(itr->second);
             radiation_locations[itr->first]=itr->second;
            }

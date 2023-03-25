@@ -2,15 +2,15 @@
 #define FUSION_RADIATION_HPP
 
 /*ROS and mrs*/
-#include <nodelet/nodelet.h>
-#include <ros/ros.h>
 #include <mrs_lib/batch_visualizer.h>
 #include <mrs_lib/transformer.h>
+#include <nodelet/nodelet.h>
+#include <ros/ros.h>
 
 /* msgs */
+#include <gazebo_rad_msgs/RadiationSource.h>
 #include <geometry_msgs/PoseStamped.h>
 #include <std_msgs/Float32.h>
-#include <gazebo_rad_msgs/RadiationSource.h>
 
 /* octomap */
 #include <octomap/OcTree.h>
@@ -24,31 +24,26 @@
 
 /*Default and download*/
 #include <cv_bridge/cv_bridge.h>
+
 #include <eigen3/Eigen/Core>
 #include <functional>
 #include <iostream>
-#include <vector>
 #include <map>
+#include <vector>
 
 /*My library*/
 #include <cone.hpp>
-#include "point_visualizer.hpp"
-#include "fusion_run.hpp"
-#include "image_filter.hpp"
 #include "csv_file_writer.hpp"
-
-
-
+#include "image_filter.hpp"
+#include "point_visualizer.hpp"
+#include "sample_filter.hpp"
+#include "sample_generator.hpp"
 
 using namespace std;
 using namespace Eigen;
 
-
-
 namespace fusion_radiation {
-class FusionRadiation: public nodelet::Nodelet {
-
-
+class FusionRadiation : public nodelet::Nodelet {
    private:
     ros::Subscriber source_sub;
     ros::NodeHandle n;
@@ -62,15 +57,18 @@ class FusionRadiation: public nodelet::Nodelet {
 
     /********* Sources  position  **************/
     ros::Subscriber source_subscriber;
-    map<int,Vector3d> radiation_sources;
+    map<int, Vector3d> radiation_sources;
     void setSourceRadiationPositionCallback(const gazebo_rad_msgs::RadiationSourceConstPtr& msg);
     void initSourcesCallbacks();
 
     /************ Compton cone  ************/
     ros::Subscriber cone_subscriber;
+    inline static SampleFilter filter = {};
+    inline static vector<Vector3d> estimation = {};
+    inline static int draw_limit_dataset = 400;
+    void processData(const Cone& cone, OcTreePtr_t collisions);
     void comptonConeCallBack(const rad_msgs::Cone::ConstPtr& msg);
     void initComptonConeCallBack();
-    
 
     /************ Octomap  ************/
     OcTreePtr_t octree_out;
@@ -90,9 +88,10 @@ class FusionRadiation: public nodelet::Nodelet {
     inline static const std::string color_encoding = "bgr8";
     inline static const std::string grayscale_encoding = "mono8";
 
-
-     /******** csv *****************/
-     inline static CSVFileWriter csv_radiations = {"rad_src"};
+    /******** csv *****************/
+    inline static CSVFileWriter csv_radiations = {"rad_src"};
+    inline static CSVFileWriter csv_estimations = {"estim"};
+    inline static CSVFileWriter csv_particles = {"part"};
 };
 
 }  // namespace fusion_radiation

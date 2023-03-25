@@ -18,7 +18,7 @@ sample_filter:
   dataset_limit : 1000
   # /* source Estimations*/
   estimation_limit: 400
-  estimation_dist: 1.0
+  estimation_dist: 0.6
   estimation_min_group_size: 10
   # /* Filters  */
    # /*cicleFilter*/
