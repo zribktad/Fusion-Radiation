@@ -6,11 +6,12 @@ def read_estimations(filename):
     # create empty lists to store the data
     timestamps = []
     estimations = []
-
-    with open(prefix+filename, "r") as f:
+    head = []
+    with open(filename, "r") as f:
         reader = csv.reader(f, delimiter=",")
-        next(reader)  # skip the header row
-        points =[]
+        head = next(reader)  # skip the header row
+
+        points = []
         for row in reader:
             # extract the data from each row
             if(len(row)==0):
@@ -27,16 +28,16 @@ def read_estimations(filename):
             estimations.append(points)
     timestamps = [str(float(timestamp) - float(min(timestamps))) for timestamp in timestamps]
 
-    return timestamps, estimations
+    return timestamps, estimations,head
 
 
 def read_radiations(filename):
     # create empty list to store the data
     radiations = []
 
-    with open(prefix+filename, "r") as f:
+    with open(filename, "r") as f:
         reader = csv.reader(f, delimiter=",")
-        next(reader)  # skip the header row
+       # next(reader)  # skip the header row
         for row in reader:
             # extract the data from each row
             point = [float(row[0]), float(row[1]), float(row[2])]

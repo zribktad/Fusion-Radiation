@@ -1,3 +1,10 @@
+estimation_active: false
+camera_process: false
+camera_GUI: false
+octomap: true
+visualization: true
+csv_writer: false
+
 generator:
   start_capacity: 150
   start_lenght: 3.0
@@ -14,26 +21,28 @@ generator:
     end_dist_weight:  1.0
 
 sample_filter:
+  #vizualization
   draw_limit_dataset: 400
-  dataset_limit : 1000
+  #dataset size
+  dataset_limit : 1500 #menej zdrojov radiacie, mensia hodnota , FOr AVG fitler around 700
   # /* source Estimations*/
-  estimation_limit: 400
-  estimation_dist: 0.6
-  estimation_min_group_size: 10
+  estimation_limit: 300
+  estimation_dist: 0.8
+  estimation_min_group_size: 15
   # /* Filters  */
    # /*cicleFilter*/
   threshold_distance : 0.5
   threshold_hit : 0
-  hit_score : 5
-  miss_score : -1
+  hit_score : 1
+  miss_score : -4
   hit_position : 0.7
-  miss_position : 0.95
+  miss_position : 0.9
   # /*SumNumFilter*/
   nearest_sum_n : 2
-  queue_sum_n : 3
+  queue_sum_n : 1
   #/*BestOfNumFilter*/
   input_coef_avg_best : 0.4 
-  output_size_avg_best : 1    
+  output_size_avg_best : 1  
    # /*RandomFilter*/
   random_sample_coef : 0.33 
     #/*WorstOfNumFilter*/

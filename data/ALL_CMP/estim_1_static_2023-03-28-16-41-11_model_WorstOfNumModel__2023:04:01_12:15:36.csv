@@ -1,0 +1,12 @@
+New mode =, WorstOfNumModel , dataset_limit=,700,estimation_limit=,200,estimation_dist=,1,estimation_min_group_size=,15,threshold_hit=,0,threshold_distance=,0.5,hit_score=,1,miss_score=,-4,hit_position=,0.5,miss_position=,0.9,nearest_sum_n=,2,queue_sum_n=,1,input_coef_avg_best=,0.1,output_size_avg_best=,0,random_sample_coef=,0.4,input_size_avg_worst=,1000,output_coef_avg_worst=,0
+2184.08,-1.25269,0.311634,0.0305237
+2185.07,-1.32511,0.526566,0.0243996
+2186.13,-0.680446,1.00701,-0.0285291
+2187.1,-0.680446,1.00701,-0.0285291
+2189.99,-0.680446,1.00701,-0.0285291
+2191,-0.680446,1.00701,-0.0285291
+2192,-0.550751,1.16,-0.0366779
+2193.42,-0.527297,0.804517,-0.0401239
+2194.68,-1.39194,2.60646,-0.0794033
+2196.2,-1.25445,2.6246,-0.0680579
+2197.21,-1.25445,2.6246,-0.0680579,-0.187771,-4.37562,0.0494118

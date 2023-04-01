@@ -1,0 +1,13 @@
+New mode =, AverageModel , dataset_limit=,700,estimation_limit=,200,estimation_dist=,1,estimation_min_group_size=,15,threshold_hit=,0,threshold_distance=,0.5,hit_score=,1,miss_score=,-4,hit_position=,0.5,miss_position=,0.9,nearest_sum_n=,2,queue_sum_n=,1,input_coef_avg_best=,0.1,output_size_avg_best=,0,random_sample_coef=,0.4,input_size_avg_worst=,1000,output_coef_avg_worst=,0
+2183.06
+2184.08,-1.38015,0.533204,0.0223725
+2185.08,-1.51549,0.765472,0.0103672
+2186.12,-0.765376,1.1129,-0.0341999
+2187.1,-0.765376,1.1129,-0.0341999
+2189.99,-0.765376,1.1129,-0.0341999
+2191,-0.765376,1.1129,-0.0341999
+2192,-0.64424,1.24235,-0.0410931
+2193.42,-0.527297,0.804517,-0.0401239
+2194.68,-0.4304,0.58405,-0.0510665
+2196.2,-0.4304,0.58405,-0.0510665
+2197.21,-0.12847,-0.281106,-0.018142

@@ -1,0 +1,18 @@
+New mode =, AverageTreeModel , dataset_limit=,50,estimation_limit=,200,estimation_dist=,1,estimation_min_group_size=,15,threshold_hit=,0,threshold_distance=,0.5,hit_score=,1,miss_score=,-4,hit_position=,0.5,miss_position=,0.9,nearest_sum_n=,40,queue_sum_n=,8,input_coef_avg_best=,0,output_size_avg_best=,1,random_sample_coef=,0.4,input_size_avg_worst=,10,output_coef_avg_worst=,0.4
+1430.54,13.2851,7.12812,-0.0749645
+1431.54
+1432.6
+1433.6
+1434.61
+1435.62
+1436.61
+1437.63
+1438.96
+1440.29
+1441.3
+1443.23
+1444.39
+1445.41
+1446.42
+1447.42
+1448.42

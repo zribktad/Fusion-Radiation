@@ -37,11 +37,22 @@ find_package(catkin REQUIRED COMPONENTS
 )
 
 
-catkin_package(
-   CATKIN_DEPENDS nodelet rospy std_msgs message_runtime rad_msgs mrs_lib rad_utils mrs_msgs sensor_msgs gazebo_rad_msgs
-   LIBRARIES Cone
-   DEPENDS Eigen
-)
+
+
+add_service_files(
+  FILES 
+  ToggleService.srv
+  ModelService.srv
+  EstimationService.srv
+  )
+
+  generate_messages(DEPENDENCIES std_msgs)
+
+  catkin_package(
+    CATKIN_DEPENDS nodelet rospy std_msgs message_runtime rad_msgs mrs_lib rad_utils mrs_msgs sensor_msgs gazebo_rad_msgs
+    DEPENDS Eigen
+ )
+
 
 include_directories(
   ${catkin_INCLUDE_DIRS}
@@ -56,7 +67,6 @@ include_directories(
  
   add_library(fusion_radiation
   src/fusion_radiation.cpp
-  src/fusion_run.cpp
   src/point.cpp
   src/cone.cpp
   src/point_visualizer.cpp

@@ -1,0 +1,7 @@
+int32 estimation_limit 
+float64 estimation_dist 
+int32 estimation_min_group_size 
+---
+# Response
+bool success
+string message

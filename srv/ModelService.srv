@@ -1,0 +1,23 @@
+# Request
+int32 mode
+int32 dataset_limit
+bool set_values
+int32 threshold_hit
+float64 threshold_distance
+int32 hit_score
+int32 miss_score
+float64 hit_position
+float64 miss_position
+float64 nearest_sum_n
+int32 queue_sum_n
+float64 input_coef_avg_best
+int32 output_size_avg_best
+float64 random_sample_coef
+int32 input_size_avg_worst
+float64 output_coef_avg_worst
+string message
+---
+# Response
+bool success
+string message
+

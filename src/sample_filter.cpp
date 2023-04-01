@@ -35,6 +35,34 @@ void SampleFilter::loadParameters(mrs_lib::ParamLoader &param_loader) {
     param_loader.loadParam("sample_filter/output_coef_avg_worst", output_coef_avg_worst);
 }
 
+void SampleFilter::clearDataset(){
+    dataset.clear();
+}
+
+string SampleFilter::get_settings_string(){
+    std::ostringstream oss;
+    oss << "dataset_limit=," << dataset_limit << ","
+        << "estimation_limit=," << estimation_limit << ","
+        << "estimation_dist=," << estimation_dist << ","
+        << "estimation_min_group_size=," << estimation_min_group_size << ","
+        << "threshold_hit=," << threshold_hit << ","
+        << "threshold_distance=," << threshold_distance << ","
+        << "hit_score=," << hit_score << ","
+        << "miss_score=," << miss_score << ","
+        << "hit_position=," << hit_position << ","
+        << "miss_position=," << miss_position << ","
+        << "nearest_sum_n=," << nearest_sum_n << ","
+        << "queue_sum_n=," << queue_sum_n << ","
+        << "input_coef_avg_best=," << input_coef_avg_best << ","
+        << "output_size_avg_best=," << output_size_avg_best << ","
+        << "random_sample_coef=," << random_sample_coef << ","
+        << "input_size_avg_worst=," << input_size_avg_worst << ","
+        << "output_coef_avg_worst=," << output_coef_avg_worst;
+
+    return oss.str();
+
+}
+
 void SampleFilter::estimateManySources(vector<Vector3d> &estimation) {
     estimation.clear();
     const int dataset_size = dataset.size();
@@ -294,7 +322,7 @@ void SampleFilter::WorstOfNumModel(Points &samples) {
     priority_queue<Point> data_priority_queue;
     vector<priority_queue<double>> ref_new_weights(dataset.size());
     // const ulong limit_in = (ulong)dataset.size() *input_size_avg_worst ;
-    const ulong limit_out = (ulong)samples.size() * output_coef_avg_worst;
+  
 
     for (Point &point : samples) {
         priority_queue<double> distance_for_point;
@@ -318,6 +346,8 @@ void SampleFilter::WorstOfNumModel(Points &samples) {
         }
         data_priority_queue.emplace(point);
     }
+
+    const ulong limit_out = (ulong)samples.size() * output_coef_avg_worst;
     for (ulong i = 0; i < dataset.size(); ++i) {
         Point &point = dataset[i];
         priority_queue<double> &new_weight = ref_new_weights[i];

@@ -26,6 +26,8 @@ class SampleFilter {
     void WorstOfNumModel(Points &samples);
     void estimateManySources(vector<Vector3d> &estimation);
     void setDataset(Points &dataset);
+    void clearDataset();
+    string get_settings_string();
     Points getDataset();
     vector<Vector3d> getEstimation();
 
@@ -35,7 +37,7 @@ class SampleFilter {
     struct Estimate_sum_t;
 
     inline void queueToDataset(priority_queue<Point> &queue);
-
+    public:
     int dataset_limit = 2000;  // buffer size
     /*Estimations*/
     int estimation_limit = 200;

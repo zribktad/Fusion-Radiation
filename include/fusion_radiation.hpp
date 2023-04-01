@@ -33,7 +33,11 @@
 
 /*My library*/
 #include <cone.hpp>
+
 #include "csv_file_writer.hpp"
+#include "fusion_radiation/EstimationService.h"
+#include "fusion_radiation/ModelService.h"
+#include "fusion_radiation/ToggleService.h"
 #include "image_filter.hpp"
 #include "point_visualizer.hpp"
 #include "sample_filter.hpp"
@@ -47,6 +51,13 @@ class FusionRadiation : public nodelet::Nodelet {
    private:
     ros::Subscriber source_sub;
     ros::NodeHandle n;
+    inline static bool is_active = false;
+    inline static bool is_camera_active = false;
+    inline static bool is_camera_GUI_active = false;
+    inline static bool is_octomap_active = true;
+    inline static bool is_visualization = false;
+    inline static bool is_csv_writer = false;
+
     inline static mrs_lib::BatchVisualizer bv = {};
 
     /******** parameters *****************/
@@ -54,19 +65,17 @@ class FusionRadiation : public nodelet::Nodelet {
 
     virtual void onInit();
     inline void loadParameters();
+    
+    static void reset(const string & msg);
 
     /********* Sources  position  **************/
     ros::Subscriber source_subscriber;
-    map<int, Vector3d> radiation_sources;
+    inline static map<int, Vector3d> radiation_sources={};
     void setSourceRadiationPositionCallback(const gazebo_rad_msgs::RadiationSourceConstPtr& msg);
     void initSourcesCallbacks();
 
     /************ Compton cone  ************/
     ros::Subscriber cone_subscriber;
-    inline static SampleFilter filter = {};
-    inline static vector<Vector3d> estimation = {};
-    inline static int draw_limit_dataset = 400;
-    void processData(const Cone& cone, OcTreePtr_t collisions);
     void comptonConeCallBack(const rad_msgs::Cone::ConstPtr& msg);
     void initComptonConeCallBack();
 
@@ -84,14 +93,27 @@ class FusionRadiation : public nodelet::Nodelet {
     void cameraInfoCallback(const sensor_msgs::CameraInfoConstPtr& msg);
     void imageCallback(const sensor_msgs::ImageConstPtr& msg);
 
+    /***************** Estimation **************************/
+    inline static SampleFilter filter = {};
+    inline static vector<Vector3d> estimation = {};
+    inline static int draw_limit_dataset = 400;
+    inline static int mode_ = 0;
+    inline static string model_list[] = {"SurroundingModel", "AverageModel", "AverageTreeModel", "WorstOfNumModel"};
+    inline void processData(const Cone& cone, OcTreePtr_t collisions);
+
+    /**************** Service ****************/
+    static bool changeEstimationState(ToggleService::Request& req, ToggleService::Response& res);
+    static bool setFilterParams(ModelService::Request& req, ModelService::Response& res);
+    static bool setEstimationParams(EstimationService::Request& req, EstimationService::Response& res);
+
     /*************** openCL ****************/
     inline static const std::string color_encoding = "bgr8";
     inline static const std::string grayscale_encoding = "mono8";
 
     /******** csv *****************/
-    inline static CSVFileWriter csv_radiations = {"rad_src"};
-    inline static CSVFileWriter csv_estimations = {"estim"};
-    inline static CSVFileWriter csv_particles = {"part"};
+    inline static CSVFileWriter csv_radiations = {};
+    inline static CSVFileWriter csv_estimations = {};
+    inline static CSVFileWriter csv_particles = {};
 };
 
 }  // namespace fusion_radiation
