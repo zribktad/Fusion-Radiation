@@ -15,7 +15,7 @@ def plot_distances_graph(timestamps, min_distances, radiations, title=""):
 
     rc('font', **{'family': 'serif', 'serif': ['Palatino']})
     plt.rc('text', usetex=True)
-    fig = plt.figure(figsize=(7, 6), dpi=dpi)
+    fig = plt.figure(figsize=(8, 6), dpi=dpi)
     ax = fig.add_subplot(111)
 
     timestamps = [float(timestamp) - float(min(timestamps))
@@ -26,17 +26,22 @@ def plot_distances_graph(timestamps, min_distances, radiations, title=""):
         label = f"Source {idx + 1} [{', '.join([f'{coord:.1f}' for coord in source])}]"
         ax.plot(timestamps, min_distances[idx], linewidth=line_width, label=label)
 
-    ax.legend(loc='best')
+    ax.legend(loc='best', fontsize=tick_size)
     ax.set_xlabel(r"Time [s]", fontsize=label_size)
     ax.set_ylabel(r"Minimum distance [m]", fontsize=label_size)
     ax.tick_params(labelsize=tick_size)
     plt.tick_params(labelsize=tick_size)
+    
     ax.grid(which="major")
  # Set y-axis scale to logarithmic
     ax.set_yscale('log')   # set y-axis scale to logarithmic
+    ax.set_yticks([ 1.0, 10.0])
     ax.yaxis.set_major_formatter(ScalarFormatter())
-    ax.ticklabel_format(axis='y', style='sci', scilimits=(0, 0))
-    plt.title(title, fontsize=title_size)
+    ax.get_yaxis().get_major_formatter().labelOnlyBase = False
+   
+  
+    #ax.ticklabel_format(axis='y', style='sci', scilimits=(0, 0))
+    #plt.title(title, fontsize=title_size)
     plt.tight_layout()
     plt.show(block=False)
 
@@ -68,11 +73,11 @@ def plot_points_graph(timestamps, estimations, title=""):
     y_edges = [0]
     for i in range(len(timestamps)-1):
         x_edges.append(float(timestamps[i]))
-       # x_edges.append(float(timestamps[i+1]))
+        x_edges.append(float(timestamps[i+1]))
         y_edges.append(point_counts[i])
-       # y_edges.append(point_counts[i])
-    # x_edges.append(float(timestamps[-1]))
-    # y_edges.append(point_counts[-1])
+        y_edges.append(point_counts[i])
+    x_edges.append(float(timestamps[-1]))
+    y_edges.append(point_counts[-1])
     x_edges.append(float(timestamps[-1]))
     y_edges.append(0)
 
@@ -90,8 +95,8 @@ def plot_points_graph(timestamps, estimations, title=""):
     plt.tick_params(labelsize=tick_size)
     ax.grid(which='major')
     plt.tight_layout()
-    plt.title(title, fontsize=title_size)
-
+    #plt.title(title, fontsize=title_size)
+  
     # n_ticks = 11
     # tick_indices = np.linspace(0, len(timestamps) - 1, n_ticks).astype(int)
     # tick_labels = [f"{float(timestamps[i]):.1f}" for i in tick_indices]
