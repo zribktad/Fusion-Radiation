@@ -68,7 +68,7 @@ void SampleFilter::estimateManySources(vector<Vector3d> &estimation) {
     const int dataset_size = dataset.size();
     const uint limit = estimation_limit != 0 ? min(dataset_size, estimation_limit) : dataset_size;
     vector<int> group(limit, -1);
-    const double ref_distance = estimation_dist * estimation_dist;
+    const double ref_distance = estimation_dist;
     vector<Estimate_sum_t> group_set;
     int group_index = 0;
     for (ulong i = 0; i < limit; i++) {
@@ -83,7 +83,7 @@ void SampleFilter::estimateManySources(vector<Vector3d> &estimation) {
                 for (ulong j = i + 1; j < limit; j++) {
                     Vector3d &p = dataset[j].coord;
                     if (group[j] == -1) {
-                        const double distance = (ref_point - p).squaredNorm();
+                        const double distance = (ref_point - p).norm();
                         if (distance <= ref_distance) {
                             group[j] = group_index;
                             estimate_sum.sum += p;

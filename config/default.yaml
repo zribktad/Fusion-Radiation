@@ -8,7 +8,7 @@ csv_writer: false
 generator:
   start_capacity: 150
   start_lenght: 3.0
-  end_lenght: 25.0
+  end_lenght: 27.0
 
   uniform:
     range: 1.0    
@@ -27,7 +27,7 @@ sample_filter:
   dataset_limit : 1500 #menej zdrojov radiacie, mensia hodnota , FOr AVG fitler around 700
   # /* source Estimations*/
   estimation_limit: 300
-  estimation_dist: 0.8
+  estimation_dist: 0.9
   estimation_min_group_size: 15
   # /* Filters  */
    # /*cicleFilter*/

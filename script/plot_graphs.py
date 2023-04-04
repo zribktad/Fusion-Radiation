@@ -26,7 +26,7 @@ def plot_distances_graph(timestamps, min_distances, radiations, title=""):
         label = f"Source {idx + 1} [{', '.join([f'{coord:.1f}' for coord in source])}]"
         ax.plot(timestamps, min_distances[idx], linewidth=line_width, label=label)
 
-    ax.legend(loc='best', fontsize=tick_size)
+    ax.legend(loc='upper right', fontsize=tick_size)
     ax.set_xlabel(r"Time [s]", fontsize=label_size)
     ax.set_ylabel(r"Minimum distance [m]", fontsize=label_size)
     ax.tick_params(labelsize=tick_size)
@@ -35,7 +35,8 @@ def plot_distances_graph(timestamps, min_distances, radiations, title=""):
     ax.grid(which="major")
  # Set y-axis scale to logarithmic
     ax.set_yscale('log')   # set y-axis scale to logarithmic
-    ax.set_yticks([ 1.0, 10.0])
+   # ax.set_yticks([1.0,5,10])
+   # plt.ylim(1, 16,1)
     ax.yaxis.set_major_formatter(ScalarFormatter())
     ax.get_yaxis().get_major_formatter().labelOnlyBase = False
    

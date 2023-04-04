@@ -43,7 +43,7 @@ def get_average_est_points(estimations):
 
 dpi = 100
 tick_size = 20
-label_size = 24
+label_size = 38
 line_width = 3
 title_size = 15
 
@@ -74,6 +74,7 @@ def make_bar_graph(avg_distances, med_distances, pair_labels, pair_labels_row):
         plt.text(i + bar_width/2, max(avg, med)+ 0.05, str(pair_labels_row[i]), ha='center', fontsize=tick_size)
 
         # Add the pair labels to the x-axis
+    #pair_labels_row = ["Average\nMoving","Surrounding\nMoving","Worst\nMoving","Average\nStatic","Surrounding\nStatic","Worst\nStatic"]
     pair_labels_row = ["Average","Surrounding","Worst"]
     plt.xticks(x_pos + bar_width / 2, pair_labels_row, rotation=0,fontsize=tick_size)
 
@@ -81,19 +82,17 @@ def make_bar_graph(avg_distances, med_distances, pair_labels, pair_labels_row):
     y_max = max(max(avg_distances), max(med_distances))
 
     # vytvorenie značiek osi y s krokom 0.5
-    ytick_values = np.arange(round(y_min), round(y_max+0.5), 0.25)
+    ytick_values = np.arange(round(y_min),y_max+y_max*0.4, 1)
 
 # nastavenie značiek osi y
     plt.yticks(ytick_values,fontsize=tick_size)
    # plt.yticks(fontsize=tick_size)
 
-    max_avg = max(avg_distances)
-    max_med = max(med_distances)
-    plt.ylim(0, max(max_avg,max_med)+max(max_avg,max_med)*0.4,1)
+    plt.ylim(0, y_max+y_max*0.4,1)
 
         # Add axis labels and a title
-    plt.xlabel('Model name for estiamtion', fontsize = label_size)
-    plt.ylabel('Distance from the radiation source', fontsize = label_size)
+    plt.xlabel('Filter model name', fontsize = label_size)
+    plt.ylabel('Distance from the source', fontsize = label_size)
    # plt.title('Head Chart')
 
         # Add a legend
@@ -127,7 +126,7 @@ def calc_bar_graph(get_average_number_estimations, avg_distances, med_distances,
 
         avg_est=get_average_number_estimations(estimations)
 #"s:" + str(len(one_d_distances))
-        pair_labels_row.append( "Avg. no. of est. sources is "+ str(avg_est))
+        pair_labels_row.append( "Avg. no. of est. sources is "+ str(avg_est)+"\n")
         label_edit2 = re.sub('[^0-9a-zA-Z]+', ' ', label)
 
         head_edit = ''
@@ -141,7 +140,7 @@ def calc_bar_graph(get_average_number_estimations, avg_distances, med_distances,
 
 if __name__ == "__main__":
 
-    path = "/home/tadeas/my_workspace/src/fusion_radiation/data/Final/1_static/"
+    path = "/home/tadeas/my_workspace/src/fusion_radiation/data/Final/3_circle/"
     file_pairs = find_file_pairs(path)
     # For avg graph...
     avg_distances = []
@@ -160,13 +159,13 @@ if __name__ == "__main__":
         label_edit = re.sub('[^0-9a-zA-Z]+', ' ', label)
         list_min_distances = get_min_distances(estimations, radiations)
 
-    #     calc_bar_graph(get_average_est_points, avg_distances, med_distances, pair_labels, pair_labels_row, estimations, head, radiations, label, list_min_distances)
-    # try:
-    #     make_bar_graph(avg_distances, med_distances, pair_labels, pair_labels_row)
-    # except IndexError:
-    #     print("Empty file sources")
+        calc_bar_graph(get_average_est_points, avg_distances, med_distances, pair_labels, pair_labels_row, estimations, head, radiations, label, list_min_distances)
+    try:
+        make_bar_graph(avg_distances, med_distances, pair_labels, pair_labels_row)
+    except IndexError:
+        print("Empty file sources")
 
-    # if False:
+    if False:
         plot_distances_graph(timestamps, list_min_distances, radiations, label_edit)
 
             # plot the points graph
