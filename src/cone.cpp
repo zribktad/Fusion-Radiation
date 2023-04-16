@@ -13,7 +13,7 @@ Cone::Cone(const double range) {
     static  std::uniform_real_distribution<double> coord_dist(-range, range);
     static std::uniform_real_distribution<double> dist(0.0001, M_PI_2 - 0.0001);
     angle = dist(gen);
-    origin = {coord_dist(gen),coord_dist(gen),0};
+    origin = {coord_dist(gen),coord_dist(gen),4};
     direction = {coord_dist(gen),coord_dist(gen),-abs(coord_dist(gen))};
     calculate_cone();
 }

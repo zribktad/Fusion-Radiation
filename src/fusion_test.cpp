@@ -22,17 +22,17 @@ fusion_radiation::OcTreePtr_t generateRandomOctomap(double resolution, int range
     std::mt19937 gen(rd());
     std::uniform_real_distribution<double> dist(-range, range);
 
-    if (plane) {
+    
         for (int x = -range; x < range; x++) {
             for (int y = -range; y < range; y++) {
                 for (int z = 0; z < 2; z++) {
-                    octomap::point3d point(x, y, -6 - z);
+                    octomap::point3d point(x, y, 0- z);
                     tree.updateNode(point, true);
                 }
             }
         }
 
-    } else {
+    if (!plane) {
         for (size_t i = 0; i < num_nodes; i++) {
             octomap::point3d point(dist(gen), dist(gen), dist(gen));
             tree.updateNode(point, true);
@@ -93,21 +93,54 @@ void FusionTest::compare_time(Funcs&&... funcs) {
 }
 
 void FusionTest::timeCompareSampler() {
-    vector<double> times(3);
-    OcTreePtr_t collisions = generateRandomOctomap(1, 100);
-    vector<Points> rs;
-    for (size_t i = 0; i < 1000; i++) {
-        rs.resize(3);
-        Cone cone(20);
-        times[2] += measure_time(&SampleGenerator::generateSamplesLines, cone, collisions, rs[2]);
+      const int loop = 1000;
+    {
+        vector<double> all_rs_size(3);
+        vector<double> times(3);
+        OcTreePtr_t collisions = generateRandomOctomap(1, 100);
+        vector<Points> rs;
+      
+        for (size_t i = 0; i < loop; i++) {
+            rs.resize(3);
+            Cone cone(20);
+            times[2] += measure_time(&SampleGenerator::generateSamplesLines, cone, collisions, rs[2]);
 
-        times[1] += measure_time(&SampleGenerator::generateSamplesRandom, cone, collisions, rs[1]);
+            times[1] += measure_time(&SampleGenerator::generateSamplesRandom, cone, collisions, rs[1]);
 
-        times[0] += measure_time(&SampleGenerator::generateSamplesUniform, cone, collisions, rs[0]);
-        ROS_INFO_STREAM("samples:  uniform: " << rs[0].size() << " random: " << rs[1].size() << " lines: " << rs[2].size());
-        rs.clear();
+            times[0] += measure_time(&SampleGenerator::generateSamplesUniform, cone, collisions, rs[0]);
+            // ROS_INFO_STREAM("samples:  uniform: " << rs[0].size() << " random: " << rs[1].size() << " lines: " << rs[2].size());
+            all_rs_size[0] += rs[0].size();
+            all_rs_size[1] += rs[1].size();
+            all_rs_size[2] += rs[2].size();
+
+            rs.clear();
+        }
+        ROS_INFO_STREAM("times:  uniform: " << times[0]/loop << " random: " << times[1]/loop << " lines: " << times[2]/loop);
+        ROS_INFO_STREAM("rs size uniform: " << all_rs_size[0]/loop << " random: " << all_rs_size[1]/loop << " lines: " << all_rs_size[2]/loop);
     }
-    ROS_INFO_STREAM("times:  uniform: " << times[0] << " random: " << times[1] << " lines: " << times[2]);
+    {
+        vector<double> all_rs_size(3);
+        vector<double> times(3);
+        OcTreePtr_t collisions = generateRandomOctomap(1, 100, false,300000);
+        vector<Points> rs;
+        for (size_t i = 0; i < loop; i++) {
+            rs.resize(3);
+            Cone cone(50);
+            times[2] += measure_time(&SampleGenerator::generateSamplesLines, cone, collisions, rs[2]);
+
+            times[1] += measure_time(&SampleGenerator::generateSamplesRandom, cone, collisions, rs[1]);
+
+            times[0] += measure_time(&SampleGenerator::generateSamplesUniform, cone, collisions, rs[0]);
+            // ROS_INFO_STREAM("samples:  uniform: " << rs[0].size() << " random: " << rs[1].size() << " lines: " << rs[2].size());
+            all_rs_size[0] += rs[0].size();
+            all_rs_size[1] += rs[1].size();
+            all_rs_size[2] += rs[2].size();
+
+            rs.clear();
+        }
+        ROS_INFO_STREAM("times:  uniform: " << times[0]/loop << " random: " << times[1]/loop << " lines: " << times[2]/loop);
+        ROS_INFO_STREAM("rs size uniform: " << all_rs_size[0]/loop << " random: " << all_rs_size[1]/loop << " lines: " << all_rs_size[2]/loop);
+    }
 }
 
 }  // namespace fusion_radiation

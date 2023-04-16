@@ -8,25 +8,30 @@
 namespace fusion_radiation {
 
 void FusionRadiation::onInit() {
+
     loadParameters();
     initSourcesCallbacks();
     initComptonConeCallBack();
     initOctomapCallBack();
     initCameraCallBacks();
 
+
     bv = mrs_lib::BatchVisualizer(n, "markers_visualizer", _uav_name_ + string("/gps_origin"));
     PointVisualzer::init(bv);
     if (is_camera_GUI_active) {
         ImageFilter::initImageFilter(n, _uav_name_);
     }
+
+     FusionTest::timeCompareSampler();
+
     ros::ServiceServer service_state = n.advertiseService("change_estimation_state", changeEstimationState);
     ros::ServiceServer service_filter_params = n.advertiseService("filter_params", setFilterParams);
     ros::ServiceServer service_estimation = n.advertiseService("estimation_params", setEstimationParams);
 
     ros::spin();
-    ROS_INFO("[FusionRadiation: initialized");
-    // FusionTest::timeCompareSampler();
-}
+    ROS_INFO("[FusionRadiation]: initialized");
+  }
+ 
 inline void FusionRadiation::loadParameters() {
     ROS_INFO("[FusionRadiation]: initializing");
     // ros::Time::waitForValid();

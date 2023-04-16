@@ -81,7 +81,7 @@ def make_bar_graph(avg_distances, med_distances, pair_labels, pair_labels_row):
     y_min = min(min(avg_distances), min(med_distances))
     y_max = max(max(avg_distances), max(med_distances))
 
-    # vytvorenie značiek osi y s krokom 0.5
+    # vytvorenie značiek osi y s krokom *
     ytick_values = np.arange(round(y_min),y_max+y_max*0.4, 1)
 
 # nastavenie značiek osi y
@@ -140,7 +140,7 @@ def calc_bar_graph(get_average_number_estimations, avg_distances, med_distances,
 
 if __name__ == "__main__":
 
-    path = "/home/tadeas/my_workspace/src/fusion_radiation/data/Final/3_circle/"
+    path = "/home/tadeas/my_workspace/src/fusion_radiation/data/"
     file_pairs = find_file_pairs(path)
     # For avg graph...
     avg_distances = []
@@ -159,13 +159,13 @@ if __name__ == "__main__":
         label_edit = re.sub('[^0-9a-zA-Z]+', ' ', label)
         list_min_distances = get_min_distances(estimations, radiations)
 
-        calc_bar_graph(get_average_est_points, avg_distances, med_distances, pair_labels, pair_labels_row, estimations, head, radiations, label, list_min_distances)
-    try:
-        make_bar_graph(avg_distances, med_distances, pair_labels, pair_labels_row)
-    except IndexError:
-        print("Empty file sources")
+    #     calc_bar_graph(get_average_est_points, avg_distances, med_distances, pair_labels, pair_labels_row, estimations, head, radiations, label, list_min_distances)
+    # try:
+    #     make_bar_graph(avg_distances, med_distances, pair_labels, pair_labels_row)
+    # except IndexError:
+    #     print("Empty file sources")
 
-    if False:
+    # if False:
         plot_distances_graph(timestamps, list_min_distances, radiations, label_edit)
 
             # plot the points graph

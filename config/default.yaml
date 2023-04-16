@@ -24,7 +24,7 @@ sample_filter:
   #vizualization
   draw_limit_dataset: 400
   #dataset size
-  dataset_limit : 1500 #menej zdrojov radiacie, mensia hodnota , FOr AVG fitler around 700
+  dataset_limit : 1500 #menej zdrojov radiacie, mensia hodnota , For AVG fitler around 700
   # /* source Estimations*/
   estimation_limit: 300
   estimation_dist: 0.9
@@ -35,19 +35,19 @@ sample_filter:
   threshold_hit : 0
   hit_score : 1
   miss_score : -4
-  hit_position : 0.7
+  hit_position : 0.5
   miss_position : 0.9
   # /*SumNumFilter*/
   nearest_sum_n : 2
   queue_sum_n : 1
-  #/*BestOfNumFilter*/
-  input_coef_avg_best : 0.4 
-  output_size_avg_best : 1  
+  #/*Average Filter*/
+  input_coef_avg_best : 0.1 
+  output_size_avg_best : 0  
    # /*RandomFilter*/
-  random_sample_coef : 0.33 
+  random_sample_coef : 0.4 
     #/*WorstOfNumFilter*/
-  input_size_avg_worst : 10     
-  output_coef_avg_worst : 0.4  
+  input_size_avg_worst : 10     #same as dataset size
+  output_coef_avg_worst : 0 
 
 image_filter:
   threshold_shift: 135
