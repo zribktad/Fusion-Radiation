@@ -10,6 +10,8 @@
 /* msgs */
 #include <gazebo_rad_msgs/RadiationSource.h>
 #include <geometry_msgs/PoseStamped.h>
+#include <pcl/point_types.h>
+#include <pcl_ros/point_cloud.h>
 #include <std_msgs/Float32.h>
 
 /* octomap */
@@ -36,6 +38,7 @@
 
 #include "csv_file_writer.hpp"
 #include "fusion_radiation/EstimationService.h"
+#include "fusion_radiation/FusionService.h"
 #include "fusion_radiation/ModelService.h"
 #include "fusion_radiation/ToggleService.h"
 #include "image_filter.hpp"
@@ -45,6 +48,7 @@
 
 using namespace std;
 using namespace Eigen;
+typedef pcl::PointCloud<pcl::PointXYZ> PointCloud;
 
 namespace fusion_radiation {
 class FusionRadiation : public nodelet::Nodelet {
@@ -57,6 +61,7 @@ class FusionRadiation : public nodelet::Nodelet {
     inline static bool is_octomap_active = true;
     inline static bool is_visualization = false;
     inline static bool is_csv_writer = false;
+    inline static bool is_pub_est_active = false;
 
     inline static mrs_lib::BatchVisualizer bv = {};
 
@@ -65,12 +70,12 @@ class FusionRadiation : public nodelet::Nodelet {
 
     virtual void onInit();
     inline void loadParameters();
-    
-    static void reset(const string & msg);
+
+    static void reset(const string& msg);
 
     /********* Sources  position  **************/
     ros::Subscriber source_subscriber;
-    inline static map<int, Vector3d> radiation_sources={};
+    inline static map<int, Vector3d> radiation_sources = {};
     void setSourceRadiationPositionCallback(const gazebo_rad_msgs::RadiationSourceConstPtr& msg);
     void initSourcesCallbacks();
 
@@ -89,6 +94,7 @@ class FusionRadiation : public nodelet::Nodelet {
     image_geometry::PinholeCameraModel camera_model_;
     std_msgs::Header image_header;
     ros::Subscriber camera_info_sub, camera_image_sub;
+    image_transport::Publisher image_rad_source_est_pub;
     void initCameraCallBacks();
     void cameraInfoCallback(const sensor_msgs::CameraInfoConstPtr& msg);
     void imageCallback(const sensor_msgs::ImageConstPtr& msg);
@@ -100,9 +106,11 @@ class FusionRadiation : public nodelet::Nodelet {
     inline static int mode_ = 0;
     inline static string model_list[] = {"SurroundingModel", "AverageModel", "AverageTreeModel", "WorstOfNumModel"};
     inline void processData(const Cone& cone, OcTreePtr_t collisions);
+    ros::Publisher estimation_pub;
 
     /**************** Service ****************/
     static bool changeEstimationState(ToggleService::Request& req, ToggleService::Response& res);
+    static bool setFusionState(FusionService::Request& req, FusionService::Response& res);
     static bool setFilterParams(ModelService::Request& req, ModelService::Response& res);
     static bool setEstimationParams(EstimationService::Request& req, EstimationService::Response& res);
 

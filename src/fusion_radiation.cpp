@@ -8,30 +8,33 @@
 namespace fusion_radiation {
 
 void FusionRadiation::onInit() {
-
     loadParameters();
+
+    bv = mrs_lib::BatchVisualizer(n, "markers_visualizer", _uav_name_ + string("/gps_origin"));
+    PointVisualzer::init(bv);
+
+    ImageFilter::initImageFilter(n, _uav_name_, is_camera_GUI_active);
+
+    FusionTest::timeCompareSampler();
+
+    ros::ServiceServer service_state = n.advertiseService("fusion_radiation/change_estimation_state", changeEstimationState);
+    ros::ServiceServer service_filter_params = n.advertiseService("fusion_radiation/filter_params", setFilterParams);
+    ros::ServiceServer service_estimation = n.advertiseService("fusion_radiation/estimation_params", setEstimationParams);
+    ros::ServiceServer service_fusion = n.advertiseService("fusion_radiation/fusion_state", setFusionState);
+
+    image_transport::ImageTransport it(n);
+    image_rad_source_est_pub = it.advertise("fusion_radiation/cam", 1);
+    estimation_pub = n.advertise<PointCloud>("fusion_radiation/estimation", 10);
+
     initSourcesCallbacks();
     initComptonConeCallBack();
     initOctomapCallBack();
     initCameraCallBacks();
 
-
-    bv = mrs_lib::BatchVisualizer(n, "markers_visualizer", _uav_name_ + string("/gps_origin"));
-    PointVisualzer::init(bv);
-    if (is_camera_GUI_active) {
-        ImageFilter::initImageFilter(n, _uav_name_);
-    }
-
-     FusionTest::timeCompareSampler();
-
-    ros::ServiceServer service_state = n.advertiseService("change_estimation_state", changeEstimationState);
-    ros::ServiceServer service_filter_params = n.advertiseService("filter_params", setFilterParams);
-    ros::ServiceServer service_estimation = n.advertiseService("estimation_params", setEstimationParams);
-
     ros::spin();
     ROS_INFO("[FusionRadiation]: initialized");
-  }
- 
+}
+
 inline void FusionRadiation::loadParameters() {
     ROS_INFO("[FusionRadiation]: initializing");
     // ros::Time::waitForValid();
@@ -45,6 +48,7 @@ inline void FusionRadiation::loadParameters() {
     param_loader.loadParam("octomap", is_octomap_active);
     param_loader.loadParam("visualization", is_visualization);
     param_loader.loadParam("csv_writer", is_csv_writer);
+    param_loader.loadParam("publish_estimation", is_pub_est_active);
 
     SampleGenerator::loadParameters(param_loader);
     filter.loadParameters(param_loader);
@@ -93,7 +97,7 @@ inline void FusionRadiation::processData(const Cone& cone, OcTreePtr_t collision
     }
 
     filter.estimateManySources(estimation);  // get estimation of radiation sources
-     ROS_INFO_STREAM("New generated estiamtions:"<< estimation.size());
+    ROS_INFO_STREAM("New generated estiamtions:" << estimation.size());
     if (is_csv_writer) csv_estimations.writePoints(estimation);
 
     /*Drawing*/
@@ -107,10 +111,21 @@ inline void FusionRadiation::processData(const Cone& cone, OcTreePtr_t collision
         // Point::writePoints(dataset);
         PointVisualzer::drawSources();
     }
+
+    if (is_pub_est_active) {
+        PointCloud cloud;
+        for (const auto& point : estimation) {
+            cloud.emplace_back(point.x(), point.y(), point.z());
+        }
+
+        cloud.header.stamp = ros::Time::now().toNSec();
+        cloud.header.frame_id = _uav_name_ + string("/gps_origin");
+        estimation_pub.publish(cloud);
+    }
 }
 
 void FusionRadiation::octomapCallBack(const octomap_msgs::OctomapConstPtr& msg) {
-    if (!is_active || !is_octomap_active) return;
+    if (!is_octomap_active) return;
 
     std::unique_ptr<octomap::AbstractOcTree> tree_ptr(octomap_msgs::msgToMap(*msg));
 
@@ -124,13 +139,15 @@ void FusionRadiation::octomapCallBack(const octomap_msgs::OctomapConstPtr& msg) 
 void FusionRadiation::cameraInfoCallback(const sensor_msgs::CameraInfoConstPtr& msg) { camera_model_.fromCameraInfo(*msg); }
 
 void FusionRadiation::imageCallback(const sensor_msgs::ImageConstPtr& msg) {
-    if (!is_active) return;
+    if (!is_camera_active) return;
     image_header = msg->header;
     const cv_bridge::CvImageConstPtr bridge_image_ptr = cv_bridge::toCvShare(msg, color_encoding);
-    if (!is_camera_active) return;
+
     cv::Mat image = bridge_image_ptr->image;
     ImageFilter::loadCameraModel(camera_model_);
     ImageFilter::findObjectInImage(image, estimation);
+    image_header = msg->header;
+    ImageFilter::publishImage(image, image_header, color_encoding, image_rad_source_est_pub);
 }
 
 void FusionRadiation::initComptonConeCallBack() {
@@ -162,10 +179,20 @@ void FusionRadiation::initSourcesCallbacks() {
 
 bool FusionRadiation::changeEstimationState(ToggleService::Request& req, ToggleService::Response& res) {
     is_active = (bool)req.state;
-    ROS_INFO_STREAM("****************  " << is_active << "  ******************  " << (bool)req.state << "  **********");
     res.success = req.state == is_active;
     ROS_INFO_STREAM("Estimation state changed : " << is_active);
     return res.success;
+}
+
+bool FusionRadiation::setFusionState(FusionService::Request& req, FusionService::Response& res) {
+    is_active = (bool)req.active;
+    is_camera_active = (bool)req.camera;
+    is_octomap_active = (bool)req.octomap;
+    is_csv_writer = (bool)req.csv_writer;
+    is_visualization = (bool)req.visualization;
+    is_pub_est_active = (bool)req.publish_estimation;
+    res.success = true;
+    return true;
 }
 
 bool FusionRadiation::setFilterParams(ModelService::Request& req, ModelService::Response& res) {
@@ -206,16 +233,16 @@ bool FusionRadiation::setEstimationParams(EstimationService::Request& req, Estim
     res.success = true;
     res.message = "EstimationService request processed successfully";
 
-    reset("");
+    reset("est_par_change");
 
     return true;
 }
 void FusionRadiation::reset(const string& msg) {
     ROS_INFO("Filter reset");
     filter.clearDataset();
-    radiation_sources = {};    
+    radiation_sources = {};
 
-    if (!msg.empty()) {
+    if (is_csv_writer) {
         CSVFileWriter::DICT = msg + "_model_" + model_list[mode_] + "_";
         csv_estimations.createNewFile("estim");
         csv_radiations.createNewFile("rad_src");
@@ -224,7 +251,10 @@ void FusionRadiation::reset(const string& msg) {
         ss << "New mode =, " << model_list[mode_] << " , " << filter.get_settings_string();
         csv_estimations.writeHeaderOrLine(ss);
 
-        is_csv_writer = true;
+    } else {
+        csv_estimations.closeFile();
+        csv_radiations.closeFile();
+        csv_particles.closeFile();
     }
 }
 

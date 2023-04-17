@@ -2,16 +2,19 @@
 
 namespace fusion_radiation {
 
-void ImageFilter::initImageFilter(ros::NodeHandle &n, string &uav_name) {
+void ImageFilter::initImageFilter(ros::NodeHandle &n, string &uav_name, bool active_GUI) {
     image_transport::ImageTransport it(n);
     ImageFilter::transformer_ = std::make_unique<mrs_lib::Transformer>("fusion_radiation");
     ImageFilter::transformer_->setDefaultPrefix(uav_name);
     ImageFilter::transformer_->retryLookupNewest(true);
     ImageFilter::origin_name = uav_name + string("/gps_origin");
 
-    namedWindow("setting", WINDOW_NORMAL);
     // namedWindow("tested_image", WINDOW_NORMAL);
+    
+    if (!active_GUI) return;
     namedWindow("Detector", WINDOW_NORMAL);
+    namedWindow("setting", WINDOW_NORMAL);
+    createTrackbar("show image", "setting", &show_image, 1);
     createTrackbar("canny thresh shift (%) ", "setting", &threshold_shift, 1000);
     createTrackbar("canny size thresh", "setting", &size_threshold, 1000);
     createTrackbar("dilatiation mode (0 = off)", "setting", &dilation, 1);
@@ -29,6 +32,7 @@ void ImageFilter::loadParameters(mrs_lib::ParamLoader &param_loader) {
     param_loader.loadParam("image_filter/delta_distance", delta_distance);
     param_loader.loadParam("image_filter/resize_image", resize_image);
     param_loader.loadParam("image_filter/show_edges", show_edges);
+    param_loader.loadParam("image_filter/show_image", show_image);
 }
 
 void ImageFilter::loadCameraModel(CameraModel_t &camera_model) {
@@ -119,30 +123,25 @@ void ImageFilter::findObjectInImage(cv::Mat &image, vector<Vector3d> &estimates)
 
     vector<vector<cv::Point>> contours;
     cv::findContours(detected_edges, contours, RETR_EXTERNAL, CHAIN_APPROX_SIMPLE);
-
     drawToImage(image, detected_edges, estimates, contours);
 
     double resize_value = ((double)resize_image) / 100;
-    cv::resize(image, image, cv::Size(), resize_value, resize_value, cv::INTER_NEAREST);
-
     if (show_edges) {
-
-         cv::resize(detected_edges, detected_edges, cv::Size(), resize_value, resize_value, cv::INTER_NEAREST);
-        cv::putText(detected_edges, "Threshold min: " + std::to_string(threshold_start) + " max: " + std::to_string(threshold_start + size_threshold), {5, 10*resize_value }, txt_font, 1*resize_value , cv::Scalar(255));
-        cv::putText(detected_edges, "Number of points: " + std::to_string(estimates.size()), {5, 25*resize_value }, txt_font, 1*resize_value , cv::Scalar(255));
-        cv::putText(detected_edges, "Number of quads: " + std::to_string(contours.size()), {5, 35*resize_value }, txt_font, 1*resize_value , cv::Scalar(255));
-
-       
-        imshow("detected_edges", detected_edges);
+        cv::resize(detected_edges, detected_edges, cv::Size(), resize_value, resize_value, cv::INTER_NEAREST);
+        cv::putText(detected_edges, "Threshold min: " + std::to_string(threshold_start) + " max: " + std::to_string(threshold_start + size_threshold), {5, 10 * resize_value}, txt_font, 1 * resize_value, cv::Scalar(255));
+        cv::putText(detected_edges, "Number of points: " + std::to_string(estimates.size()), {5, 25 * resize_value}, txt_font, 1 * resize_value, cv::Scalar(255));
+        cv::putText(detected_edges, "Number of quads: " + std::to_string(contours.size()), {5, 35 * resize_value}, txt_font, 1 * resize_value, cv::Scalar(255));
+        imshow("Detected edges info", detected_edges);
+          waitKey(20);
     }
-
-    imshow("Detector", image);
-    waitKey(20);
-    // imshow("canny_image", detected_edges);
-    // waitKey(20);
+    if (show_image) {
+        cv::resize(image, image, cv::Size(), resize_value, resize_value, cv::INTER_NEAREST);
+        imshow("Detector", image);
+        waitKey(20);
+    }
 }
 
-void ImageFilter::publishImage(cv::InputArray image, std_msgs::Header image_header, const std::string &encoding, const image_transport::Publisher &pub) {
+void ImageFilter::publishImage(cv::InputArray &image, std_msgs::Header &image_header, const std::string &encoding, const image_transport::Publisher &pub) {
     cv_bridge::CvImage bridge_image_out;
     bridge_image_out.header = image_header;
     bridge_image_out.image = image.getMat();

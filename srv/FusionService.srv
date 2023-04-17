@@ -1,0 +1,8 @@
+bool active
+bool camera
+bool octomap
+bool visualization
+bool csv_writer
+bool publish_estimation
+---
+bool success

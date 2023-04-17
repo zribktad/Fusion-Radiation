@@ -44,6 +44,7 @@ add_service_files(
   ToggleService.srv
   ModelService.srv
   EstimationService.srv
+  FusionService.srv
   )
 
   generate_messages(DEPENDENCIES std_msgs)

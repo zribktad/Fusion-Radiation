@@ -1,9 +1,10 @@
 estimation_active: false
 camera_process: false
 camera_GUI: false
-octomap: true
-visualization: true
+octomap: false
+visualization: false
 csv_writer: false
+publish_estimation: false
 
 generator:
   start_capacity: 150
@@ -22,11 +23,11 @@ generator:
 
 sample_filter:
   #vizualization
-  draw_limit_dataset: 400
+  draw_limit_dataset: 400 # '0' for all
   #dataset size
   dataset_limit : 1500 #menej zdrojov radiacie, mensia hodnota , For AVG fitler around 700
   # /* source Estimations*/
-  estimation_limit: 300
+  estimation_limit: 300   # '0' for all
   estimation_dist: 0.9
   estimation_min_group_size: 15
   # /* Filters  */
@@ -57,3 +58,4 @@ image_filter:
   delta_distance: 25
   resize_image: 50
   show_edges: 0
+  show_image: 0
