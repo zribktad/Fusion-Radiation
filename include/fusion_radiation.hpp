@@ -57,7 +57,7 @@ class FusionRadiation : public nodelet::Nodelet {
     ros::NodeHandle n;
     inline static bool is_active = false;
     inline static bool is_camera_active = false;
-    inline static bool is_camera_GUI_active = false;
+
     inline static bool is_octomap_active = true;
     inline static bool is_visualization = false;
     inline static bool is_csv_writer = false;

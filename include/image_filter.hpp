@@ -36,7 +36,7 @@ const std::string grayscale_encoding = "mono8";
 namespace fusion_radiation {
 class ImageFilter {
    public:
-    static void initImageFilter(ros::NodeHandle &n, string &uav_name, bool active_GUI);
+    static void initImageFilter(ros::NodeHandle &n, string &uav_name);
     static void loadCameraModel(CameraModel_t &camera_model);
     static void findObjectInImage(cv::Mat &image, vector<Vector3d> &estimates);
     static void loadParameters(mrs_lib::ParamLoader &param_loader);
@@ -66,6 +66,8 @@ class ImageFilter {
     inline static int resize_image = 50;
     inline static int show_edges = 0;
     inline static int show_image = 0;
+
+        inline static bool is_camera_GUI_active = false;
 };
 
 }  // namespace fusion_radiation

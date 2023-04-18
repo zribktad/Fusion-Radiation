@@ -6,6 +6,9 @@
 #include <eigen3/Eigen/Core>
 #include <eigen3/Eigen/Geometry>
 
+#include <sstream> 
+
+
 namespace fusion_radiation {
 
 using namespace Eigen;
@@ -26,6 +29,7 @@ struct Cone {
     Cone(const double range);
     Cone(Vector3d o, Vector3d d, double a);
     Cone(const rad_msgs::Cone::ConstPtr& msg);
+    std::string toString() const ;
     void calculate_cone();
 };
 }  // namespace fusion_radiation

@@ -13,7 +13,7 @@ void FusionRadiation::onInit() {
     bv = mrs_lib::BatchVisualizer(n, "markers_visualizer", _uav_name_ + string("/gps_origin"));
     PointVisualzer::init(bv);
 
-    ImageFilter::initImageFilter(n, _uav_name_, is_camera_GUI_active);
+    ImageFilter::initImageFilter(n, _uav_name_);
 
     FusionTest::timeCompareSampler();
 
@@ -24,7 +24,7 @@ void FusionRadiation::onInit() {
 
     image_transport::ImageTransport it(n);
     image_rad_source_est_pub = it.advertise("fusion_radiation/cam", 1);
-    estimation_pub = n.advertise<PointCloud>("fusion_radiation/estimation", 10);
+    estimation_pub = n.advertise<PointCloud>("fusion_radiation/estimation", 1);
 
     initSourcesCallbacks();
     initComptonConeCallBack();
@@ -44,7 +44,6 @@ inline void FusionRadiation::loadParameters() {
     param_loader.loadParam("sample_filter/draw_limit_dataset", draw_limit_dataset);
     param_loader.loadParam("estimation_active", is_active);
     param_loader.loadParam("camera_process", is_camera_active);
-    param_loader.loadParam("camera_GUI", is_camera_GUI_active);
     param_loader.loadParam("octomap", is_octomap_active);
     param_loader.loadParam("visualization", is_visualization);
     param_loader.loadParam("csv_writer", is_csv_writer);
@@ -62,10 +61,9 @@ inline void FusionRadiation::loadParameters() {
 }
 
 void FusionRadiation::comptonConeCallBack(const rad_msgs::Cone::ConstPtr& msg) {
-    ROS_INFO("New compton cone");
     if (!is_active) return;
-    ROS_INFO("Cone processing");
     const Cone cone(msg);
+    ROS_INFO_STREAM("New Compton cone ( " << cone.toString() << ")");
     processData(cone, octree_out);
 
     if (is_csv_writer) csv_radiations.writeRadiations(radiation_sources);
@@ -97,7 +95,7 @@ inline void FusionRadiation::processData(const Cone& cone, OcTreePtr_t collision
     }
 
     filter.estimateManySources(estimation);  // get estimation of radiation sources
-    ROS_INFO_STREAM("New generated estiamtions:" << estimation.size());
+    ROS_INFO_STREAM("New generated estiamtions: " << estimation.size());
     if (is_csv_writer) csv_estimations.writePoints(estimation);
 
     /*Drawing*/
@@ -115,7 +113,7 @@ inline void FusionRadiation::processData(const Cone& cone, OcTreePtr_t collision
     if (is_pub_est_active) {
         PointCloud cloud;
         for (const auto& point : estimation) {
-            cloud.emplace_back(point.x(), point.y(), point.z());
+            cloud.emplace_back((float)point.x(), (float)point.y(), (float)point.z());
         }
 
         cloud.header.stamp = ros::Time::now().toNSec();
@@ -132,7 +130,7 @@ void FusionRadiation::octomapCallBack(const octomap_msgs::OctomapConstPtr& msg) 
     if (tree_ptr) {
         octree_out = OcTreePtr_t(dynamic_cast<octomap::OcTree*>(tree_ptr.release()));
     } else {
-        ROS_WARN_THROTTLE(1.0, "[OctomapCeilingRemover]: octomap message is empty!");
+        ROS_WARN_THROTTLE(1.0, "[FusionRadiation]: octomap message is empty!");
     }
 }
 

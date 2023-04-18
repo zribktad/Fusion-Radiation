@@ -1,6 +1,5 @@
 estimation_active: false
 camera_process: false
-camera_GUI: false
 octomap: false
 visualization: false
 csv_writer: false
@@ -51,11 +50,12 @@ sample_filter:
   output_coef_avg_worst : 0 
 
 image_filter:
-  threshold_shift: 135
-  size_threshold: 360
+  camera_GUI: true
+  threshold_shift: 261 # 135  
+  size_threshold: 134 #360
   dilation: 0
   dilation_size: 1
   delta_distance: 25
   resize_image: 50
-  show_edges: 0
-  show_image: 0
+  show_edges: 0     # 0/1
+  show_image: 0      # 0/1

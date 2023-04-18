@@ -71,7 +71,7 @@ windows:
   - rqt_image:
       layout: tiled
       panes: 
-        - rqt_image_view /my_image_out
+        - rqt_image_view /uav15/fusion_radiation/cam
   - test:
       layout: tiled
       panes: 

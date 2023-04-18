@@ -2,26 +2,12 @@
 
 namespace fusion_radiation {
 
-void ImageFilter::initImageFilter(ros::NodeHandle &n, string &uav_name, bool active_GUI) {
+void ImageFilter::initImageFilter(ros::NodeHandle &n, string &uav_name) {
     image_transport::ImageTransport it(n);
     ImageFilter::transformer_ = std::make_unique<mrs_lib::Transformer>("fusion_radiation");
     ImageFilter::transformer_->setDefaultPrefix(uav_name);
     ImageFilter::transformer_->retryLookupNewest(true);
     ImageFilter::origin_name = uav_name + string("/gps_origin");
-
-    // namedWindow("tested_image", WINDOW_NORMAL);
-    
-    if (!active_GUI) return;
-    namedWindow("Detector", WINDOW_NORMAL);
-    namedWindow("setting", WINDOW_NORMAL);
-    createTrackbar("show image", "setting", &show_image, 1);
-    createTrackbar("canny thresh shift (%) ", "setting", &threshold_shift, 1000);
-    createTrackbar("canny size thresh", "setting", &size_threshold, 1000);
-    createTrackbar("dilatiation mode (0 = off)", "setting", &dilation, 1);
-    createTrackbar("dilatation size", "setting", &dilation_size, 10);
-    createTrackbar("resize image (%)", "setting", &resize_image, 150);
-    createTrackbar("show edge image", "setting", &show_edges, 1);
-    createTrackbar("delta distance", "setting", &delta_distance, 300);
 }
 
 void ImageFilter::loadParameters(mrs_lib::ParamLoader &param_loader) {
@@ -33,6 +19,24 @@ void ImageFilter::loadParameters(mrs_lib::ParamLoader &param_loader) {
     param_loader.loadParam("image_filter/resize_image", resize_image);
     param_loader.loadParam("image_filter/show_edges", show_edges);
     param_loader.loadParam("image_filter/show_image", show_image);
+    param_loader.loadParam("image_filter/camera_GUI", is_camera_GUI_active);
+
+    // namedWindow("tested_image", WINDOW_NORMAL);
+
+    if (!is_camera_GUI_active) return;
+
+    ROS_INFO("OPENCL GUI ON");
+    namedWindow("OpenCL Settings", WINDOW_NORMAL);
+    namedWindow("Detector", WINDOW_NORMAL);
+
+    createTrackbar("show image", "OpenCL Settings", &show_image, 1);
+    createTrackbar("canny thresh shift (%) ", "OpenCL Settings", &threshold_shift, 1000);
+    createTrackbar("canny size thresh", "OpenCL Settings", &size_threshold, 1000);
+    createTrackbar("dilatiation mode (0 = off)", "OpenCL Settings", &dilation, 1);
+    createTrackbar("dilatation size", "OpenCL Settings", &dilation_size, 10);
+    createTrackbar("resize image (%)", "OpenCL Settings", &resize_image, 150);
+    createTrackbar("show edge image", "OpenCL Settings", &show_edges, 1);
+    createTrackbar("delta distance", "OpenCL Settings", &delta_distance, 300);
 }
 
 void ImageFilter::loadCameraModel(CameraModel_t &camera_model) {
@@ -119,6 +123,7 @@ void ImageFilter::findObjectInImage(cv::Mat &image, vector<Vector3d> &estimates)
 
     cv::Mat tmp;
     const int threshold_start = cv::threshold(gray, tmp, 0, 255, CV_THRESH_BINARY | CV_THRESH_OTSU) * threshold_shift / 100;
+    
     cv::Canny(gray, detected_edges, threshold_start, threshold_start + size_threshold);
 
     vector<vector<cv::Point>> contours;
@@ -126,19 +131,26 @@ void ImageFilter::findObjectInImage(cv::Mat &image, vector<Vector3d> &estimates)
     drawToImage(image, detected_edges, estimates, contours);
 
     double resize_value = ((double)resize_image) / 100;
-    if (show_edges) {
-        cv::resize(detected_edges, detected_edges, cv::Size(), resize_value, resize_value, cv::INTER_NEAREST);
-        cv::putText(detected_edges, "Threshold min: " + std::to_string(threshold_start) + " max: " + std::to_string(threshold_start + size_threshold), {5, 10 * resize_value}, txt_font, 1 * resize_value, cv::Scalar(255));
-        cv::putText(detected_edges, "Number of points: " + std::to_string(estimates.size()), {5, 25 * resize_value}, txt_font, 1 * resize_value, cv::Scalar(255));
-        cv::putText(detected_edges, "Number of quads: " + std::to_string(contours.size()), {5, 35 * resize_value}, txt_font, 1 * resize_value, cv::Scalar(255));
-        imshow("Detected edges info", detected_edges);
-          waitKey(20);
+
+    if (is_camera_GUI_active)
+
+    {
+        if (show_edges) {
+            cv::resize(detected_edges, detected_edges, cv::Size(), resize_value, resize_value, cv::INTER_NEAREST);
+            cv::putText(detected_edges, "Threshold min: " + std::to_string(threshold_start) + " max: " + std::to_string(threshold_start + size_threshold), {5, 10 * resize_value}, txt_font, 1 * resize_value, cv::Scalar(255));
+            cv::putText(detected_edges, "Number of points: " + std::to_string(estimates.size()), {5, 25 * resize_value}, txt_font, 1 * resize_value, cv::Scalar(255));
+            cv::putText(detected_edges, "Number of quads: " + std::to_string(contours.size()), {5, 35 * resize_value}, txt_font, 1 * resize_value, cv::Scalar(255));
+            imshow("Detected edges info", detected_edges);
+        }
+        if (show_image) {
+            cv::resize(image, image, cv::Size(), resize_value, resize_value, cv::INTER_NEAREST);
+            imshow("Detector", image);
+        }else{
+               cv::Mat empty(1,1,CV_8UC3, cv::Scalar(0, 0, 0));
+            imshow("Detector",empty);
+        }
     }
-    if (show_image) {
-        cv::resize(image, image, cv::Size(), resize_value, resize_value, cv::INTER_NEAREST);
-        imshow("Detector", image);
-        waitKey(20);
-    }
+    waitKey(20);
 }
 
 void ImageFilter::publishImage(cv::InputArray &image, std_msgs::Header &image_header, const std::string &encoding, const image_transport::Publisher &pub) {

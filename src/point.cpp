@@ -11,10 +11,10 @@ Point::Point() : coord({0, 0, 0}), weight(INFINITY), coeff(0),cone_id(-1) {
 Point::Point(Vector3d coord) : coord(coord), weight(INFINITY),coeff(0), cone_id(-1) {
 }
 
-Point::Point(Vector3d coord, long cone_id) : coord(coord), weight(INFINITY), coeff(0),cone_id(cone_id) {
+Point::Point(Vector3d coord, ulong cone_id) : coord(coord), weight(INFINITY), coeff(0),cone_id(cone_id) {
 }
 
-Point::Point(Vector3d coord, double weight, long cone_id) : coord(coord), weight(weight),coeff(0), cone_id(cone_id) {
+Point::Point(Vector3d coord, double weight, ulong cone_id) : coord(coord), weight(weight),coeff(0), cone_id(cone_id) {
 }
 
 bool Point::operator<(const Point &rhs) const {

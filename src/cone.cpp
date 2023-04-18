@@ -38,4 +38,12 @@ void Cone::calculate_cone() {
     direction_norm_side = adjacent_hypotenuse * direction_norm;
 }
 
+std::string Cone::toString() const {
+    std::ostringstream oss;
+    oss << "o: [" << origin.transpose() << "], ";
+    oss << "d: [" << direction.transpose() << "], ";
+    oss << "a: " << angle << ", ";
+    return oss.str();
+}
+
 }  // namespace fusion_radiation

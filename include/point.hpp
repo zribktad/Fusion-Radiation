@@ -18,8 +18,8 @@ struct Point {
 
     Point();
     Point(Vector3d coord);
-    Point(Vector3d coord, long cone_id);
-    Point(Vector3d coord, double weight, long cone_id);
+    Point(Vector3d coord, ulong cone_id);
+    Point(Vector3d coord, double weight, ulong cone_id);
 
     bool operator<(const Point &rhs) const;
     bool operator==(const Point &rhs) const;
