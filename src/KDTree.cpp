@@ -2,18 +2,35 @@
 
 namespace fusion_radiation {
 
+/**
+ * @brief A node in the KDTree.
+ */
 struct KDTree::Node {
-    Point p;
-    ulong id;
-    Node *left;
-    Node *right;
-
+    Point p;     /**< The point stored in this node. */
+    ulong id;    /**< The index of the point in the original input vector. */
+    Node *left;  /**< The left child of this node. */
+    Node *right; /**< The right child of this node. */
+    /**
+     * @brief Constructs a new Node with the given point and no children.
+     * @param p The point to store in the node.
+     */
     explicit Node(const Point &p) : p(p), left(nullptr), right(nullptr) {}
+    /**
+     * @brief Constructs a new Node with the given point, index, and no children.
+     * @param p The point to store in the node.
+     * @param id The index of the point in the original input vector.
+     */
     explicit Node(const Point &p, const ulong &id) : p(p), left(nullptr), right(nullptr), id(id) {}
 };
 
 class KDTree::NearestNeighbor {
    public:
+    /**
+     * @brief Compares two nearest neighbors by distance.
+     * @param a The first nearest neighbor.
+     * @param b The second nearest neighbor.
+     * @return True if the distance of @p a is less than the distance of @p b.
+     */
     bool operator()(const pair<double, ulong> &a, const pair<double, ulong> &b) const {
         return a.first < b.first;
     }

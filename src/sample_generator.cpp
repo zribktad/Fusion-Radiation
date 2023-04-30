@@ -1,3 +1,13 @@
+/**
+ * @file sample_generator.cpp
+ * @author Tadeáš Zribko
+ * @brief  The SampleGenerator class generates points in a given cone using three methods: uniform sampling, random sampling, and lines sampling.
+ * @version 0.1
+ * @date 2023-04-30
+ * 
+ * @copyright Copyright (c) 2023
+ * 
+ */
 
 #include "sample_generator.hpp"
 

@@ -5,8 +5,8 @@
 namespace fusion_radiation {
 
 struct SampleFilter::Estimate_sum_t {
-    Vector3d sum;
-    uint coeff;
+    Vector3d sum; ///< The sum of the vectors in a group
+    uint coeff; ///< The number of vectors in a group
 };
 
 void SampleFilter::loadParameters(mrs_lib::ParamLoader &param_loader) {

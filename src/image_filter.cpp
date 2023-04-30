@@ -70,7 +70,7 @@ inline bool ImageFilter::transformPointTocamera(const double &x, const double &y
     return true;
 }
 
-inline const double distanceSquared(cv::Point2d p, cv::Rect rect) {
+inline const double ImageFilter::distanceSquared(cv::Point2d p, cv::Rect rect) {
     const auto delta_x = max(min((int)p.x, rect.x + rect.width), rect.x);
     const auto delta_y = max(min((int)p.y, rect.y + rect.height), rect.y);
     const auto dx = p.x - delta_x;
@@ -78,7 +78,7 @@ inline const double distanceSquared(cv::Point2d p, cv::Rect rect) {
     return dx * dx + dy * dy;
 }
 
-inline void findRectanglesInDistance(cv::Point2d &p, vector<cv::Rect> &found_quads, const double delta, vector<cv::Rect> &closed) {
+inline void ImageFilter::findRectanglesInDistance(cv::Point2d &p, vector<cv::Rect> &found_quads, const double delta, vector<cv::Rect> &closed) {
     const double distance = delta * delta;
     for (auto &r : found_quads) {
         if (distance >= distanceSquared(p, r))

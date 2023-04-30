@@ -29,7 +29,14 @@ fusion_radiation::OcTreePtr_t FusionTest::generateOctomapPlane(double resolution
     return tree_ptr;
 }
 
-
+  /**
+   * @brief Generate an OcTreePtr_t with random points
+   * @param resolution The resolution of the OcTree
+   * @param range The range of the random points in x, y, and z directions
+   * @param plane If true, a plane is generated at z=0.1, otherwise random points are generated
+   * @param num_nodes The number of random points to generate
+   * @return The generated OcTreePtr_t
+   */
 fusion_radiation::OcTreePtr_t generateRandomOctomap(double resolution, int range, bool plane = true, int num_nodes = 100000) {
     octomap::OcTree tree(resolution);
 
@@ -60,6 +67,16 @@ fusion_radiation::OcTreePtr_t generateRandomOctomap(double resolution, int range
     return tree_ptr;
 }
 
+  /**
+   * @brief Generate a random vector in a given range with a given shift
+   * @param x_min The minimum x value of the range
+   * @param x_max The maximum x value of the range
+   * @param y_min The minimum y value of the range
+   * @param y_max The maximum y value of the range
+   * @param z_min The minimum z value of the range
+   * @param z_max The maximum z value of the range
+   * @return The generated vector
+   */
 inline Eigen::Vector3d generate_random_vector(double x_min, double x_max,
                                               double y_min, double y_max,
                                               double z_min, double z_max) {
@@ -70,11 +87,20 @@ inline Eigen::Vector3d generate_random_vector(double x_min, double x_max,
     std::uniform_real_distribution<double> z_dist(z_min, z_max);
     return Eigen::Vector3d(x_dist(gen), y_dist(gen), z_dist(gen));
 }
-
+ /**
+   * @brief Generate a random vector in a range with a given shift
+   * @param range The range of the random vector in x, y, and z directions
+   * @param shift The shift applied to the range
+   * @return The generated vector
+   */
 inline Eigen::Vector3d generate_random_vector(double range = 10, double shift = 0) {
     return generate_random_vector(-range + shift, range + shift, -range + shift, range + shift, -range + shift, range + shift);
 }
-
+ /**
+   * @brief Generate a vector of points for testing
+   * @param size The size of the vector
+   * @return The generated vector
+   */
 Points FusionTest::generatorPoints(const uint size) {
     Points r;
     r.reserve(size);

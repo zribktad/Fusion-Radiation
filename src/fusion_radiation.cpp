@@ -1,9 +1,6 @@
 #include "fusion_radiation.hpp"
 
-#include <mrs_lib/param_loader.h>
 
-#include "fusion_test.hpp"
-#include "image_filter.hpp"
 
 namespace fusion_radiation {
 
@@ -81,17 +78,17 @@ inline void FusionRadiation::processData(const Cone& cone, OcTreePtr_t collision
     ROS_INFO_STREAM("New generated samples size:" << samples.size());
 
     /*Filter part */
-    switch (mode_) {
-        case 0:
+    switch (model_) {
+        case MODEL_SURROUNDING:
             filter.SurroundingModel(samples);
             break;
-        case 1:
+        case MODEL_AVERAGE:
             filter.AverageModel(samples);
             break;
-        case 2:
+        case MODEL_AVERAGE_TREE:
             filter.AverageTreeModel(samples);
             break;
-        case 3:
+        case MODEL_WORST_OF_NUM:
             filter.WorstOfNumModel(samples);
             break;
         default:
@@ -205,7 +202,7 @@ bool FusionRadiation::setFusionState(FusionService::Request& req, FusionService:
 bool FusionRadiation::setFilterParams(ModelService::Request& req, ModelService::Response& res) {
     // Set the parameters based on the request
 
-    mode_ = req.mode;
+    model_ = req.mode;
     if (req.dataset_limit != 0) {
         filter.dataset_limit = req.dataset_limit;
         filter.threshold_hit = req.threshold_hit;
@@ -222,7 +219,7 @@ bool FusionRadiation::setFilterParams(ModelService::Request& req, ModelService::
         filter.input_size_avg_worst = req.input_size_avg_worst;
         filter.output_coef_avg_worst = req.output_coef_avg_worst;
     }
-    ROS_INFO_STREAM("Data changed, filter model is: " << model_list[mode_]);
+    ROS_INFO_STREAM("Data changed, filter model is: " << model_list[model_]);
     reset(req.message);
 
     res.success = true;
@@ -250,12 +247,12 @@ void FusionRadiation::reset(const string& msg) {
     radiation_sources = {};
 
     if (is_csv_writer) {
-        CSVFileWriter::DICT = msg + "_model_" + model_list[mode_] + "_";
+        CSVFileWriter::DICT = msg + "_model_" + model_list[model_] + "_";
         csv_estimations.createNewFile("estim");
         csv_radiations.createNewFile("rad_src");
         csv_radiations.radiations = {};
         stringstream ss;
-        ss << "New mode =, " << model_list[mode_] << " , " << filter.get_settings_string();
+        ss << "New mode =, " << model_list[model_] << " , " << filter.get_settings_string();
         csv_estimations.writeHeaderOrLine(ss);
 
     } else {

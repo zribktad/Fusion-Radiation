@@ -57,5 +57,5 @@ void PointVisualzer::drawSources(const double scale) {
     bv.publish();
     ros::spinOnce();
 
-}  // namespace fusion_radiation
+}//namespace fusion_radiation  
 }
