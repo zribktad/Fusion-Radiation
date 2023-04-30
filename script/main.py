@@ -133,7 +133,7 @@ def calc_bar_graph(get_average_number_estimations, avg_distances, med_distances,
         for i in range(1, len(head) - 1, 2):
             head_edit += "\n"+str(head[i+1]) + ": " + str(head[i + 2]) 
       
-          #  tmp_label = '\n'.join(re.findall('.{1,20}', label_edit) + " \n " + head)
+          #  tmp_label = '\n'.join(r.findall('.{1,20}', label_edit) + " \n " + head)
         tmp_label =  label_edit2+head_edit
            
         pair_labels.append(tmp_label)

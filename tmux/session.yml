@@ -10,7 +10,8 @@ windows:
   - gazebo:
       layout: tiled
       panes:
-        - waitForRos; roslaunch mrs_simulation simulation.launch world_name:=my_world gui:=true
+        # - waitForRos; roslaunch mrs_simulation simulation.launch world_name:=my_world gui:=true
+        - waitForRos; roslaunch mrs_simulation simulation.launch world_name:=grass_plane gui:=true
         - waitForOdometry; gz camera -c gzclient_camera -f ${UAV_NAME}; history -s gz camera -c gzclient_camera -f ${UAV_NAME}
   - status:
       layout: tiled
@@ -20,6 +21,7 @@ windows:
       layout: tiled
       panes:
         - waitForSimulation; rosservice call /mrs_drone_spawner/spawn "15 $UAV_TYPE --enable-rangefinder --enable-timepix3 --enable-ground-truth --enable-ouster --ouster-model OS0-128 --use-gpu-ray --pos 0 0 1.0 0 --enable-mobius-camera-front"
+        #- waitForSimulation; rosservice call /mrs_drone_spawner/spawn "15 $UAV_TYPE --enable-rangefinder --enable-timepix3 --enable-ground-truth --enable-realsense-front --pos 0 0 1.0 0 --enable-mobius-camera-front"
   - control:
       layout: tiled
       panes:
@@ -75,7 +77,8 @@ windows:
   - test:
       layout: tiled
       panes: 
-        -
+        - history -s rosservice call /uav15/fusion_radiation/fusion_state 
+
   - fusion:
       layout: tiled
       panes: 
@@ -85,3 +88,6 @@ windows:
       layout: tiled
       panes:
         -  cd ~/my_workspace/bagfiles
+  - generator_source:
+      layout: tiled
+        -  roslaunch radiation_source_generator radiation_source_generator.launch 

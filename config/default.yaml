@@ -50,7 +50,7 @@ sample_filter:
   output_coef_avg_worst : 0 
 
 image_filter:
-  camera_GUI: true
+  camera_GUI: false
   threshold_shift: 261 # 135  
   size_threshold: 134 #360
   dilation: 0
@@ -59,3 +59,4 @@ image_filter:
   resize_image: 50
   show_edges: 0     # 0/1
   show_image: 0      # 0/1
+

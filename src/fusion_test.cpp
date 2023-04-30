@@ -1,19 +1,34 @@
 #include "fusion_test.hpp"
 
-#include <octomap/OcTree.h>
-#include <octomap/octomap.h>
-#include <octomap_msgs/Octomap.h>
-#include <octomap_msgs/conversions.h>
 
-#include <chrono>
-#include <cmath>
-#include <cone.hpp>
-#include <memory>
-#include <random>
-#include <sample_generator.hpp>
-#include <string>
 
 namespace fusion_radiation {
+
+
+fusion_radiation::OcTreePtr_t FusionTest::generateOctomapPlane(double resolution, int range, Vector3d origin) {
+    octomap::OcTree tree(resolution);
+
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::uniform_real_distribution<double> dist(-range, range);
+        double shift = resolution-0.01;
+        for (double x = -range; x < range; x+=resolution) {
+            for (double y = -range; y < range; y+=resolution) {
+               // for (double z = 0.2; z < 3; z+=resolution) {
+                    octomap::point3d point(origin.x()+x,origin.y()+ y, origin.z());
+                    tree.updateNode(point, true);
+               // }
+            }
+        }
+
+    
+
+    // Convert to OcTreePtr_t
+    fusion_radiation::OcTreePtr_t tree_ptr = std::make_shared<octomap::OcTree>(tree);
+
+    return tree_ptr;
+}
+
 
 fusion_radiation::OcTreePtr_t generateRandomOctomap(double resolution, int range, bool plane = true, int num_nodes = 100000) {
     octomap::OcTree tree(resolution);
@@ -25,10 +40,10 @@ fusion_radiation::OcTreePtr_t generateRandomOctomap(double resolution, int range
     
         for (int x = -range; x < range; x++) {
             for (int y = -range; y < range; y++) {
-                for (int z = 0; z < 2; z++) {
-                    octomap::point3d point(x, y, 0- z);
+               // for (int z = 0; z < 2; z++) {
+                    octomap::point3d point(x, y, 0.1);
                     tree.updateNode(point, true);
-                }
+               // }
             }
         }
 

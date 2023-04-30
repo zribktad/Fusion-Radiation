@@ -5,9 +5,9 @@ namespace fusion_radiation {
 void ImageFilter::initImageFilter(ros::NodeHandle &n, string &uav_name) {
     image_transport::ImageTransport it(n);
     ImageFilter::transformer_ = std::make_unique<mrs_lib::Transformer>("fusion_radiation");
-    ImageFilter::transformer_->setDefaultPrefix(uav_name);
+   // ImageFilter::transformer_->setDefaultPrefix(uav_name);
     ImageFilter::transformer_->retryLookupNewest(true);
-    ImageFilter::origin_name = uav_name + string("/gps_origin");
+    ImageFilter::origin_name = uav_name + string("/rtk_origin");
 }
 
 void ImageFilter::loadParameters(mrs_lib::ParamLoader &param_loader) {
@@ -38,25 +38,29 @@ void ImageFilter::loadParameters(mrs_lib::ParamLoader &param_loader) {
     createTrackbar("show edge image", "OpenCL Settings", &show_edges, 1);
     createTrackbar("delta distance", "OpenCL Settings", &delta_distance, 300);
 }
-
+ 
 void ImageFilter::loadCameraModel(CameraModel_t &camera_model) {
     ImageFilter::camera_model = camera_model;
 }
 
 inline bool ImageFilter::transformPointTocamera(const double &x, const double &y, const double &z, cv::Point2d &out_point) {
-    geometry_msgs::PoseStamped pt3d_world;
+
+
+        geometry_msgs::PoseStamped pt3d_world;
     pt3d_world.header.frame_id = origin_name;
     pt3d_world.header.stamp = ros::Time::now();
     pt3d_world.pose.position.x = x;
     pt3d_world.pose.position.y = y;
     pt3d_world.pose.position.z = z;
+
     auto ret = ImageFilter::transformer_->transformSingle(pt3d_world, camera_model.tfFrame());
+    
     geometry_msgs::PoseStamped pt3d_cam;
     if (ret) {
         pt3d_cam = ret.value();
 
     } else {
-        ROS_WARN_THROTTLE(1.0, "[PointToCamera]: Failed to tranform point from world to camera frame, cannot backproject point to image");
+        ROS_WARN_STREAM_THROTTLE(1.0, "[PointToCamera]: Failed to tranform point from world to camera frame, cannot backproject point to image header:" << pt3d_world.header.frame_id );
         return false;
     }
     const cv::Point3d pt3d(pt3d_cam.pose.position.x, pt3d_cam.pose.position.y, pt3d_cam.pose.position.z);

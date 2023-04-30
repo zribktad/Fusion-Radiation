@@ -10,12 +10,14 @@ namespace fusion_radiation {
 void FusionRadiation::onInit() {
     loadParameters();
 
-    bv = mrs_lib::BatchVisualizer(n, "markers_visualizer", _uav_name_ + string("/gps_origin"));
+    bv = mrs_lib::BatchVisualizer(n, "markers_visualizer", _uav_name_ + string("/rtk_origin"));
     PointVisualzer::init(bv);
 
     ImageFilter::initImageFilter(n, _uav_name_);
 
-    FusionTest::timeCompareSampler();
+    //FusionTest::timeCompareSampler();
+
+    octree_out = FusionTest::generateOctomapPlane(1,100,{0,0,0});  
 
     ros::ServiceServer service_state = n.advertiseService("fusion_radiation/change_estimation_state", changeEstimationState);
     ros::ServiceServer service_filter_params = n.advertiseService("fusion_radiation/filter_params", setFilterParams);
@@ -34,6 +36,9 @@ void FusionRadiation::onInit() {
     ros::spin();
     ROS_INFO("[FusionRadiation]: initialized");
 }
+
+
+
 
 inline void FusionRadiation::loadParameters() {
     ROS_INFO("[FusionRadiation]: initializing");
@@ -117,7 +122,7 @@ inline void FusionRadiation::processData(const Cone& cone, OcTreePtr_t collision
         }
 
         cloud.header.stamp = ros::Time::now().toNSec();
-        cloud.header.frame_id = _uav_name_ + string("/gps_origin");
+        cloud.header.frame_id = _uav_name_ + string("/rtk_origin");
         estimation_pub.publish(cloud);
     }
 }
@@ -128,7 +133,7 @@ void FusionRadiation::octomapCallBack(const octomap_msgs::OctomapConstPtr& msg) 
     std::unique_ptr<octomap::AbstractOcTree> tree_ptr(octomap_msgs::msgToMap(*msg));
 
     if (tree_ptr) {
-        octree_out = OcTreePtr_t(dynamic_cast<octomap::OcTree*>(tree_ptr.release()));
+       // octree_out = OcTreePtr_t(dynamic_cast<octomap::OcTree*>(tree_ptr.release()));
     } else {
         ROS_WARN_THROTTLE(1.0, "[FusionRadiation]: octomap message is empty!");
     }
@@ -159,8 +164,12 @@ void FusionRadiation::initOctomapCallBack() {
 }
 
 void FusionRadiation::initCameraCallBacks() {
-    const string image_topic = string("/") + _uav_name_ + string("/mobius_front/image_raw");
-    const string camera_info_topic = string("/") + _uav_name_ + string("/mobius_front/camera_info");
+   /// const string image_topic = string("/") + _uav_name_ + string("/mobius_front/image_raw");
+    //const string camera_info_topic = string("/") + _uav_name_ + string("/mobius_front/camera_info");
+    
+    const string image_topic = "/oak/rgb/image_raw";
+    const string camera_info_topic ="/oak/rgb/camera_info";
+
     camera_image_sub = n.subscribe(image_topic, 1, &FusionRadiation::imageCallback, this);
     camera_info_sub = n.subscribe(camera_info_topic, 1, &FusionRadiation::cameraInfoCallback, this);
 }
@@ -231,7 +240,7 @@ bool FusionRadiation::setEstimationParams(EstimationService::Request& req, Estim
     res.success = true;
     res.message = "EstimationService request processed successfully";
 
-    reset("est_par_change");
+    reset("");
 
     return true;
 }

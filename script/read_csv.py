@@ -13,6 +13,7 @@ def read_estimations(filename):
 
         points = []
         for row in reader:
+            row = [elem for elem in row if elem.strip()]
             # extract the data from each row
             if(len(row)==0):
                 break
@@ -24,10 +25,11 @@ def read_estimations(filename):
                 ]
 
             # append the data to the appropriate lists
-            timestamps.append(timestamp)
+            timestamps.append(float(timestamp))
             estimations.append(points)
-    timestamps = [str(float(timestamp) - float(min(timestamps))) for timestamp in timestamps]
-
+    print(min(timestamps))
+    timestamps= [str(float(timestamp) - float(min(timestamps))) for timestamp in timestamps]
+    
     return timestamps, estimations,head
 
 
