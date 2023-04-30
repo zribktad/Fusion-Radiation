@@ -71,22 +71,31 @@ class FusionRadiation : public nodelet::Nodelet {
    private:
     ros::Subscriber source_sub;
     ros::NodeHandle n;
+    /** Whether the node is active or not. */
     inline static bool is_active = false;
+    /** Whether the camera is active or not. */
     inline static bool is_camera_active = false;
-
+    /** Whether the octomap is active or not. */
     inline static bool is_octomap_active = true;
+    /** Whether visualization is active or not. */
     inline static bool is_visualization = false;
+    /** Whether CSV writing is active or not. */
     inline static bool is_csv_writer = false;
+    /** Whether publishing estimation is active or not. */
     inline static bool is_pub_est_active = false;
-
+    /** Surrounding model constant. */
     static const int MODEL_SURROUNDING = 0;
+    /** Average model constant. */
     static const int MODEL_AVERAGE = 1;
+    /** Average tree model constant. */
     static const int MODEL_AVERAGE_TREE = 2;
+    /** Worst of num model constant. */
     static const int MODEL_WORST_OF_NUM = 3;
-
+    /** Batch visualizer object. */
     inline static mrs_lib::BatchVisualizer bv = {};
 
     /******** parameters *****************/
+    /** UAV name parameter. */
     string _uav_name_;
     /**
      * @brief Initialization method for the node. It loads the parameters and sets up the subscribers, publishers and services.
@@ -104,7 +113,9 @@ class FusionRadiation : public nodelet::Nodelet {
     static void reset(const string& msg);
 
     /********* Sources  position  **************/
+    /** Subscriber for radiation source position messages. */
     ros::Subscriber source_subscriber;
+    /** Map of radiation sources. */
     inline static map<int, Vector3d> radiation_sources = {};
     /**
      * @brief Set the position of the radiation source.
@@ -121,6 +132,7 @@ class FusionRadiation : public nodelet::Nodelet {
     void initSourcesCallbacks();
 
     /************ Compton cone  ************/
+    /** Subscriber for compton cone messages. */
     ros::Subscriber cone_subscriber;
     /**
      * @brief Callback function for Compton cones received
@@ -134,7 +146,9 @@ class FusionRadiation : public nodelet::Nodelet {
     void initComptonConeCallBack();
 
     /************ Octomap  ************/
+    /** Octomap object pointer. */
     OcTreePtr_t octree_out;
+    /** Subscriber for octomap messages. */
     ros::Subscriber octomap_subscriber;
     /**
      * @brief Callback function for the octomap topic. This function receives the octomap and generates an octree from it.
@@ -148,9 +162,15 @@ class FusionRadiation : public nodelet::Nodelet {
     void initOctomapCallBack();
 
     /******** Camera Image and Info **********/
+    /** Camera model object. */
     image_geometry::PinholeCameraModel camera_model_;
+    /** Image header object. */
     std_msgs::Header image_header;
-    ros::Subscriber camera_info_sub, camera_image_sub;
+    /** Subscriber for camera info messages. */
+    ros::Subscriber camera_info_sub;
+    /** Subscriber for camera image messages. */
+    ros::Subscriber camera_image_sub;
+    /** Image transport object. */
     image_transport::Publisher image_rad_source_est_pub;
     /**
      * @brief Function to initialize the camera callbacks.
@@ -172,10 +192,15 @@ class FusionRadiation : public nodelet::Nodelet {
     void imageCallback(const sensor_msgs::ImageConstPtr& msg);
 
     /***************** Estimation **************************/
+    /** Particle filter object. */
     inline static SampleFilter filter = {};
+    /** Estimation vector object. */
     inline static vector<Vector3d> estimation = {};
+    /** Limit of particles to draw dataset. */
     inline static int draw_limit_dataset = 400;
+    /** Model used for radiation source estimation. */
     inline static int model_ = 0;
+    /** List of available models. */
     inline static string model_list[] = {"SurroundingModel", "AverageModel", "AverageTreeModel", "WorstOfNumModel"};
     /**
      * @brief Process the received data from the cone and update the estimation of radiation sources.
@@ -184,6 +209,7 @@ class FusionRadiation : public nodelet::Nodelet {
      * @param collisions - The Octree representing the environment.
      */
     inline void processData(const Cone& cone, OcTreePtr_t collisions);
+        /** Publisher for estimation messages. */
     ros::Publisher estimation_pub;
 
     /**************** Service ****************/
@@ -217,12 +243,15 @@ class FusionRadiation : public nodelet::Nodelet {
     static bool setEstimationParams(EstimationService::Request& req, EstimationService::Response& res);
 
     /*************** openCL ****************/
-    inline static const std::string color_encoding = "bgr8";
+    inline static const std::string color_encoding = "rgb8";
     inline static const std::string grayscale_encoding = "mono8";
 
     /******** csv *****************/
+        /** CSV file writer for radiation. */
     inline static CSVFileWriter csv_radiations = {};
+        /** CSV file writer for estimations. */
     inline static CSVFileWriter csv_estimations = {};
+        /** CSV file writer for particles. */
     inline static CSVFileWriter csv_particles = {};
 };
 
