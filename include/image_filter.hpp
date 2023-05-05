@@ -17,6 +17,8 @@
 #include <cv_bridge/cv_bridge.h>
 #include <image_geometry/pinhole_camera_model.h>
 #include <image_transport/image_transport.h>
+#include <tf2_ros/transform_listener.h>
+#include <tf2_geometry_msgs/tf2_geometry_msgs.h>
 
 /* OpenCV includes */
 #include <opencv2/core/core.hpp>
@@ -84,6 +86,16 @@ class ImageFilter {
      * @return true if the transformation and projection was successful, false otherwise.
      */
     inline static bool transformPointTocamera(const double &x, const double &y, const double &z, cv::Point2d &out_point);
+        /**
+     * @brief Transforms a 3D point to the camera frame and projects it onto the image plane.
+     *
+     * @param x The x-coordinate of the 3D point.
+     * @param y The y-coordinate of the 3D point.
+     * @param z The z-coordinate of the 3D point.
+     * @param out_point The resulting 2D point on the image plane.
+     * @return true if the transformation and projection was successful, false otherwise.
+     */
+    inline static bool transformPointTocamera2(const double &x, const double &y, const double &z, cv::Point2d &out_point);
     /**
      * @brief Draws detected edges and estimated points to the input image.
      *

@@ -1,11 +1,14 @@
 #include "image_filter.hpp"
 
+tf2_ros::Buffer tf_buffer;
+tf2_ros::TransformListener tf_listener(tf_buffer);
+
 namespace fusion_radiation {
 
 void ImageFilter::initImageFilter(ros::NodeHandle &n, string &uav_name) {
     image_transport::ImageTransport it(n);
     ImageFilter::transformer_ = std::make_unique<mrs_lib::Transformer>("fusion_radiation");
-   // ImageFilter::transformer_->setDefaultPrefix(uav_name);
+    // ImageFilter::transformer_->setDefaultPrefix(uav_name);
     ImageFilter::transformer_->retryLookupNewest(true);
     ImageFilter::origin_name = uav_name + string("/rtk_origin");
 }
@@ -38,35 +41,78 @@ void ImageFilter::loadParameters(mrs_lib::ParamLoader &param_loader) {
     createTrackbar("show edge image", "OpenCL Settings", &show_edges, 1);
     createTrackbar("delta distance", "OpenCL Settings", &delta_distance, 300);
 }
- 
+
 void ImageFilter::loadCameraModel(CameraModel_t &camera_model) {
     ImageFilter::camera_model = camera_model;
 }
 
 inline bool ImageFilter::transformPointTocamera(const double &x, const double &y, const double &z, cv::Point2d &out_point) {
-
-
-        geometry_msgs::PoseStamped pt3d_world;
+    geometry_msgs::PoseStamped pt3d_world;
     pt3d_world.header.frame_id = origin_name;
-    pt3d_world.header.stamp = ros::Time::now();
+    pt3d_world.header.stamp = camera_model.cameraInfo().header.stamp;
     pt3d_world.pose.position.x = x;
     pt3d_world.pose.position.y = y;
     pt3d_world.pose.position.z = z;
 
-    auto ret = ImageFilter::transformer_->transformSingle(pt3d_world, camera_model.tfFrame());
-    
+    std::optional<geometry_msgs::PoseStamped> ret = transformer_->transformSingle(pt3d_world, camera_model.tfFrame());
+
     geometry_msgs::PoseStamped pt3d_cam;
     if (ret) {
         pt3d_cam = ret.value();
 
     } else {
-        ROS_WARN_STREAM_THROTTLE(1.0, "[PointToCamera]: Failed to tranform point from world to camera frame, cannot backproject point to image header:" << pt3d_world.header.frame_id );
+        ROS_WARN_STREAM_THROTTLE(1.0, "[PointToCamera]: Failed to tranform point from world to camera frame, cannot backproject point to image header:" << pt3d_world.header.frame_id);
         return false;
     }
     const cv::Point3d pt3d(pt3d_cam.pose.position.x, pt3d_cam.pose.position.y, pt3d_cam.pose.position.z);
     const cv::Point2d pt2d = ImageFilter::camera_model.project3dToPixel(pt3d);  // this is now in rectified image coordinates
     out_point = ImageFilter::camera_model.unrectifyPoint(pt2d);
 
+    return true;
+}
+
+inline bool ImageFilter::transformPointTocamera2(const double &x, const double &y, const double &z, cv::Point2d &out_point) {
+     geometry_msgs::PointStamped pt3d_world;
+    pt3d_world.header.frame_id = origin_name;
+    pt3d_world.header.stamp = camera_model.cameraInfo().header.stamp;
+    pt3d_world.point.x = x;
+    pt3d_world.point.y = y;
+    pt3d_world.point.z = z;
+
+    std::string target_frame_id = "oak_rgb_camera_optical_frame";
+    std::string source_frame_id = "uav35/rtk_origin";
+
+    geometry_msgs::PoseStamped pt3d_cam;
+    geometry_msgs::PointStamped transformed_point;
+    string error_str;
+    geometry_msgs::TransformStamped transform;
+    ros::Time latest_time = ros::Time(0);
+
+    try {
+        if (tf_buffer.canTransform(target_frame_id, source_frame_id, ros::Time(0))) {
+            transform = tf_buffer.lookupTransform(target_frame_id, source_frame_id, ros::Time(0));
+            latest_time = transform.header.stamp;
+        } else {
+            ROS_WARN_STREAM_THROTTLE(0.0, "[PointToCamera]: Cannot find transformation between " << target_frame_id << " and " << source_frame_id);
+           // return false;
+        }
+
+        if (tf_buffer.canTransform(target_frame_id, source_frame_id, latest_time)) {
+            transform = tf_buffer.lookupTransform(target_frame_id, source_frame_id, latest_time);
+            tf2::doTransform(pt3d_world, transformed_point, transform);
+            transformed_point.header.frame_id = camera_model.tfFrame();  // Set the target frame ID
+            ROS_INFO("Transformed point: (%f, %f, %f)", transformed_point.point.x, transformed_point.point.y, transformed_point.point.z);
+        } else {
+            ROS_WARN_STREAM_THROTTLE(0.0, "[PointToCamera]: Cannot find transformation between " << target_frame_id << " and " << source_frame_id << " at time " << latest_time);
+           // return false;
+        }
+    } catch (tf2::TransformException &ex) {
+        ROS_ERROR("%s", ex.what());
+        ROS_WARN_STREAM_THROTTLE(0.0, "[PointToCamera]: Failed to transform point from world to camera frame, cannot backproject point to image header:" << pt3d_world.header.frame_id << " error:" << error_str);
+        return false;
+    }
+
+    ROS_INFO("Transformed point: (%f, %f, %f)", transformed_point.point.x, transformed_point.point.y, transformed_point.point.z);
     return true;
 }
 
@@ -98,7 +144,7 @@ inline void ImageFilter::drawToImage(cv::Mat &image, cv::Mat &detected_edges, co
 
     for (const auto &point3D : estimates) {
         cv::Point2d point2D;
-        if (transformPointTocamera(point3D.x(), point3D.y(), point3D.z(), point2D)) {  // red or blue color, depending on the pixel ordering (BGR or RGB)
+        if (transformPointTocamera2(point3D.x(), point3D.y(), point3D.z(), point2D)) {  // red or blue color, depending on the pixel ordering (BGR or RGB)
             cv::circle(image, point2D, delta_distance, circle_color, pt_thickness);
             cv::circle(image, point2D, delta_distance, circle_color, 5);
             const std::string coord_txt = "[" + std::to_string(point3D.x()) + "," + std::to_string(point3D.y()) + "," + std::to_string(point3D.z()) + "]";
@@ -127,7 +173,7 @@ void ImageFilter::findObjectInImage(cv::Mat &image, vector<Vector3d> &estimates)
 
     cv::Mat tmp;
     const int threshold_start = cv::threshold(gray, tmp, 0, 255, CV_THRESH_BINARY | CV_THRESH_OTSU) * threshold_shift / 100;
-    
+
     cv::Canny(gray, detected_edges, threshold_start, threshold_start + size_threshold);
 
     vector<vector<cv::Point>> contours;
@@ -149,9 +195,9 @@ void ImageFilter::findObjectInImage(cv::Mat &image, vector<Vector3d> &estimates)
         if (show_image) {
             cv::resize(image, image, cv::Size(), resize_value, resize_value, cv::INTER_NEAREST);
             imshow("Detector", image);
-        }else{
-               cv::Mat empty(1,1,CV_8UC3, cv::Scalar(0, 0, 0));
-            imshow("Detector",empty);
+        } else {
+            cv::Mat empty(1, 1, CV_8UC3, cv::Scalar(0, 0, 0));
+            imshow("Detector", empty);
         }
     }
     waitKey(20);

@@ -1,7 +1,7 @@
-estimation_active: false
-camera_process: false
-octomap: false
-visualization: false
+estimation_active: true
+camera_process: true
+octomap: true
+visualization: true
 csv_writer: false
 publish_estimation: false
 

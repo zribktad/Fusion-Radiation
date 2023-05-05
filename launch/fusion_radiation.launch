@@ -10,6 +10,8 @@
     <rosparam if="$(eval not arg('custom_config') == '')" file="$(arg custom_config)" />
 
     <param name="uav_name" value="$(arg uav_name)" />
+    <remap from="~markers_visualizer" to="markers_visualizer2"/>
+    
   </node>
   </group>
 

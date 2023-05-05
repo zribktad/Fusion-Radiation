@@ -7,7 +7,7 @@ namespace fusion_radiation {
 void FusionRadiation::onInit() {
     loadParameters();
 
-    bv = mrs_lib::BatchVisualizer(n, "markers_visualizer", _uav_name_ + string("/rtk_origin"));
+    bv = mrs_lib::BatchVisualizer(n, "markers_visualizer2", _uav_name_ + string("/rtk_origin"));
     PointVisualzer::init(bv);
 
     ImageFilter::initImageFilter(n, _uav_name_);
@@ -136,7 +136,8 @@ void FusionRadiation::octomapCallBack(const octomap_msgs::OctomapConstPtr& msg) 
     }
 }
 
-void FusionRadiation::cameraInfoCallback(const sensor_msgs::CameraInfoConstPtr& msg) { camera_model_.fromCameraInfo(*msg); }
+void FusionRadiation::cameraInfoCallback(const sensor_msgs::CameraInfoConstPtr& msg) { 
+    camera_model_.fromCameraInfo(*msg); }
 
 void FusionRadiation::imageCallback(const sensor_msgs::ImageConstPtr& msg) {
     if (!is_camera_active) return;
@@ -153,6 +154,7 @@ void FusionRadiation::imageCallback(const sensor_msgs::ImageConstPtr& msg) {
 void FusionRadiation::initComptonConeCallBack() {
     const string cone_topic = string("/") + _uav_name_ + string("/compton_cone_generator/cones");
     cone_subscriber = n.subscribe(cone_topic, 1000, &FusionRadiation::comptonConeCallBack, this);
+    
 }
 
 void FusionRadiation::initOctomapCallBack() {
