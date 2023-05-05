@@ -7,7 +7,7 @@ namespace fusion_radiation {
 
 void ImageFilter::initImageFilter(ros::NodeHandle &n, string &uav_name) {
     image_transport::ImageTransport it(n);
-    ImageFilter::transformer_ = std::make_unique<mrs_lib::Transformer>("fusion_radiation");
+    ImageFilter::transformer_ = std::make_unique<mrs_lib::Transformer>(n, "fusion_radiation");
     // ImageFilter::transformer_->setDefaultPrefix(uav_name);
     ImageFilter::transformer_->retryLookupNewest(true);
     ImageFilter::origin_name = uav_name + string("/rtk_origin");
@@ -49,7 +49,7 @@ void ImageFilter::loadCameraModel(CameraModel_t &camera_model) {
 inline bool ImageFilter::transformPointTocamera(const double &x, const double &y, const double &z, cv::Point2d &out_point) {
     geometry_msgs::PoseStamped pt3d_world;
     pt3d_world.header.frame_id = origin_name;
-    pt3d_world.header.stamp = camera_model.cameraInfo().header.stamp;
+    pt3d_world.header.stamp = ros::Time::now();
     pt3d_world.pose.position.x = x;
     pt3d_world.pose.position.y = y;
     pt3d_world.pose.position.z = z;
@@ -144,7 +144,7 @@ inline void ImageFilter::drawToImage(cv::Mat &image, cv::Mat &detected_edges, co
 
     for (const auto &point3D : estimates) {
         cv::Point2d point2D;
-        if (transformPointTocamera2(point3D.x(), point3D.y(), point3D.z(), point2D)) {  // red or blue color, depending on the pixel ordering (BGR or RGB)
+        if (transformPointTocamera(point3D.x(), point3D.y(), point3D.z(), point2D)) {  // red or blue color, depending on the pixel ordering (BGR or RGB)
             cv::circle(image, point2D, delta_distance, circle_color, pt_thickness);
             cv::circle(image, point2D, delta_distance, circle_color, 5);
             const std::string coord_txt = "[" + std::to_string(point3D.x()) + "," + std::to_string(point3D.y()) + "," + std::to_string(point3D.z()) + "]";
