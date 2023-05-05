@@ -1,3 +1,13 @@
 .vscode/settings.json
 .vscode/c_cpp_properties.json
 .vscode
+
+*.swp
+*.swo
+*.swn
+
+# Runtime-python
+*.pyc
+
+
+
